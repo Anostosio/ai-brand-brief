@@ -1,7 +1,7 @@
 import { validateBrief, validateFormData } from '../lib/brief-core.js';
 
 const WINDOW_MS = 10 * 60 * 1000;
-const MAX_REQUESTS = 10;
+const MAX_REQUESTS = 5;
 const MAX_BODY_BYTES = 24_000;
 const REQUEST_TIMEOUT_MS = 28_000;
 const rateBuckets = globalThis.__brandBriefRateBuckets || new Map();
@@ -69,15 +69,16 @@ function isRateLimited(key) {
   return false;
 }
 
-function extractText(payload) {
-  if (typeof payload.output_text === 'string' && payload.output_text.trim()) return payload.output_text.trim();
-  for (const item of payload.output || []) {
-    for (const part of item.content || []) {
-      if (part.type === 'refusal') throw new Error('MODEL_REFUSAL');
-      if (part.type === 'output_text' && typeof part.text === 'string') return part.text.trim();
-    }
-  }
-  return '';
+export function extractText(payload) {
+  const message = payload?.choices?.[0]?.message;
+  if (message?.refusal) throw new Error('MODEL_REFUSAL');
+  return typeof message?.content === 'string' ? message.content.trim() : '';
+}
+
+export function classifyUpstreamStatus(status) {
+  if (status === 401 || status === 403) return 'configuration';
+  if (status === 429) return 'rate-limit';
+  return 'upstream';
 }
 
 function sendError(response, status, code, message) {
@@ -95,7 +96,7 @@ export default async function handler(request, response) {
   if (!String(request.headers['content-type'] || '').toLowerCase().includes('application/json')) {
     return sendError(response, 415, 'UNSUPPORTED_MEDIA_TYPE', 'Content-Type must be application/json.');
   }
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.GROQ_API_KEY) {
     return sendError(response, 503, 'AI_NOT_CONFIGURED', 'AI generation is not configured.');
   }
   if (isRateLimited(getClientKey(request))) {
@@ -123,34 +124,46 @@ export default async function handler(request, response) {
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const aiResponse = await fetch('https://api.openai.com/v1/responses', {
+    const model = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+    const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`
       },
       signal: controller.signal,
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5.6',
-        input: [
+        model,
+        messages: [
           { role: 'system', content: `${SYSTEM_PROMPT}\n\nWrite every output field in ${language}.` },
           { role: 'user', content: `Create the brief from this project data:\n${JSON.stringify(validation.data, null, 2)}` }
         ],
-        text: {
-          format: {
-            type: 'json_schema',
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
             name: 'brand_brief',
             strict: true,
             schema: BRIEF_SCHEMA
           }
         },
-        max_output_tokens: 3000
+        max_completion_tokens: 2200,
+        reasoning_effort: 'low',
+        include_reasoning: false,
+        temperature: 0.4
       })
     });
 
     const payload = await aiResponse.json().catch(() => ({}));
     if (!aiResponse.ok) {
-      console.error('OpenAI API error', { status: aiResponse.status, type: payload?.error?.type });
+      const failure = classifyUpstreamStatus(aiResponse.status);
+      console.error('Groq API error', { status: aiResponse.status, type: payload?.error?.type });
+      if (failure === 'configuration') {
+        return sendError(response, 503, 'AI_NOT_CONFIGURED', 'AI generation is temporarily unavailable.');
+      }
+      if (failure === 'rate-limit') {
+        response.setHeader('Retry-After', aiResponse.headers.get('retry-after') || '60');
+        return sendError(response, 429, 'RATE_LIMITED', 'The AI quota is busy. Please try again later.');
+      }
       return sendError(response, 502, 'UPSTREAM_ERROR', 'The generation service could not complete the request.');
     }
 
@@ -161,7 +174,7 @@ export default async function handler(request, response) {
 
     return response.status(200).json({
       brief,
-      meta: { mode: 'ai', model: process.env.OPENAI_MODEL || 'gpt-5.6', generatedAt: new Date().toISOString() }
+      meta: { mode: 'ai', provider: 'groq', model, generatedAt: new Date().toISOString() }
     });
   } catch (error) {
     if (error.name === 'AbortError') return sendError(response, 504, 'TIMEOUT', 'Generation took too long. Please retry.');
