@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AI Brand Brief turns a short business questionnaire into a structured brand strategy starter." />
+  <title>AI Brand Brief — Anostosio°</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#">Anostosio° / AI Lab</a>
+    <span class="pill">MVP · AI-assisted product</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">From scattered thoughts to a usable direction</p>
+        <h1>Build a clearer brand brief in minutes.</h1>
+        <p class="lead">Describe your business, audience and goals. AI Brand Brief turns your answers into a concise strategic starting point for positioning, tone of voice and visual direction.</p>
+      </div>
+      <div class="hero-note">
+        <span>01</span>
+        <p>Fill in the brief</p>
+        <span>02</span>
+        <p>Generate a direction</p>
+        <span>03</span>
+        <p>Copy or refine it</p>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <form id="briefForm" class="panel form-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="kicker">Input</p>
+            <h2>Tell me about the project</h2>
+          </div>
+          <button type="button" class="text-button" id="exampleButton">Use example</button>
+        </div>
+
+        <label>
+          Brand / project name
+          <input id="brandName" name="brandName" placeholder="e.g. Mellow Club" required />
+        </label>
+
+        <label>
+          What does the business do?
+          <textarea id="business" name="business" rows="3" placeholder="Describe the product or service in a few sentences." required></textarea>
+        </label>
+
+        <div class="field-grid">
+          <label>
+            Primary audience
+            <input id="audience" name="audience" placeholder="Who should care most?" required />
+          </label>
+          <label>
+            Market / geography
+            <input id="market" name="market" placeholder="e.g. Europe, online" />
+          </label>
+        </div>
+
+        <label>
+          Main business goal
+          <select id="goal" name="goal" required>
+            <option value="">Choose one</option>
+            <option>Launch a new brand</option>
+            <option>Reposition an existing brand</option>
+            <option>Increase trust and recognition</option>
+            <option>Clarify messaging</option>
+            <option>Prepare for a campaign</option>
+          </select>
+        </label>
+
+        <label>
+          Desired brand personality
+          <input id="personality" name="personality" placeholder="e.g. calm, clever, warm, premium" required />
+        </label>
+
+        <label>
+          Competitors or alternatives
+          <input id="competitors" name="competitors" placeholder="Optional: names or types of competitors" />
+        </label>
+
+        <label>
+          Anything the brand should avoid?
+          <textarea id="avoid" name="avoid" rows="2" placeholder="Clichés, visual styles, words, associations..."></textarea>
+        </label>
+
+        <button class="primary-button" type="submit">
+          <span>Generate brand direction</span>
+          <span aria-hidden="true">↗</span>
+        </button>
+        <p class="form-hint">Portfolio MVP: generation currently runs in a deterministic demo mode so the project works without exposing an API key.</p>
+      </form>
+
+      <section class="panel result-panel" aria-live="polite">
+        <div class="panel-heading result-heading">
+          <div>
+            <p class="kicker">Output</p>
+            <h2 id="resultTitle">Your brand direction will appear here</h2>
+          </div>
+          <button type="button" class="text-button" id="copyButton" disabled>Copy result</button>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+          <div class="orbit" aria-hidden="true"><span></span></div>
+          <p>Complete the questionnaire to turn raw business context into a structured creative brief.</p>
+        </div>
+
+        <div id="result" class="result-content" hidden>
+          <article>
+            <span>01</span>
+            <h3>Brand summary</h3>
+            <p id="summaryOutput"></p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Audience focus</h3>
+            <p id="audienceOutput"></p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Positioning direction</h3>
+            <p id="positioningOutput"></p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>Tone of voice</h3>
+            <p id="toneOutput"></p>
+          </article>
+          <article>
+            <span>05</span>
+            <h3>Key messages</h3>
+            <ul id="messagesOutput"></ul>
+          </article>
+          <article>
+            <span>06</span>
+            <h3>Visual direction</h3>
+            <p id="visualOutput"></p>
+          </article>
+          <article>
+            <span>07</span>
+            <h3>Next step</h3>
+            <p id="nextOutput"></p>
+          </article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <p>Concept, UX/UI and product direction by Anostosio°</p>
+    <a href="https://anostosio.ru/" target="_blank" rel="noreferrer">anostosio.ru ↗</a>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
