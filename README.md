@@ -10,7 +10,7 @@ A bilingual, AI-assisted workspace for turning real project context into an edit
 
 **Role:** product concept · brand methodology · UX/UI · front-end · serverless integration · testing · deployment
 
-**Status:** v1.0
+**Status:** v1.1
 
 **Format:** EN / RU · responsive web application
 
@@ -44,7 +44,7 @@ POST /api/generate
         ↓
 Server-side input limits + rate guard
         ↓
-OpenAI Responses API + strict JSON Schema
+Groq API + strict JSON Schema
         ↓
 Validated working brief
         ↓
@@ -83,12 +83,15 @@ The product supports formatted clipboard output, machine-readable JSON and a pri
 - request timeout and best-effort per-instance rate guard
 - strict schema-constrained model output
 - output validation before rendering
+- explicit warning against submitting confidential client information
 - no HTML injection from generated content
 - security headers and restrictive Content Security Policy
 - reduced-motion and keyboard-focus support
 - automated core tests and GitHub Actions checks
 
 The in-memory rate guard is intentionally lightweight for this portfolio deployment. A production multi-instance service should use a shared rate-limit store or the hosting provider’s firewall.
+
+Questionnaire answers submitted for AI generation are processed by Groq. The public demo should be used with fictional or non-confidential project information.
 
 ## Stack
 
@@ -97,7 +100,7 @@ The in-memory rate guard is intentionally lightweight for this portfolio deploym
 - vanilla JavaScript ES modules
 - Local Storage, Clipboard and Blob APIs
 - Vercel serverless function
-- OpenAI Responses API with Structured Outputs
+- Groq Chat Completions API with Structured Outputs
 - Node.js built-in test runner
 - GitHub Actions
 - Vercel
@@ -115,8 +118,8 @@ npm test
 Environment variables:
 
 ```text
-OPENAI_API_KEY=your_server_side_key_here
-OPENAI_MODEL=gpt-5.6
+GROQ_API_KEY=your_server_side_key_here
+GROQ_MODEL=openai/gpt-oss-20b
 ```
 
 ## Project structure
