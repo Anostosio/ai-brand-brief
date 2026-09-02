@@ -33,6 +33,12 @@ test('builds a schema-valid local draft', () => {
   assert.equal(validateBrief(buildLocalDraft(result.data)), true);
 });
 
+test('does not duplicate terminal punctuation from user input', () => {
+  const draft = buildLocalDraft({ ...validInput, audience: 'Remote professionals.', proof: 'Tested with 42 people.' });
+  assert.equal(draft.messages[1].includes('..'), false);
+  assert.equal(draft.risks.includes('..'), false);
+});
+
 test('rejects malformed brief output', () => {
   assert.equal(validateBrief({ overview: 'Only one field' }), false);
 });
