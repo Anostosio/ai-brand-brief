@@ -1,15 +1,24 @@
 # AI Brand Brief
 
-AI Brand Brief is a lightweight AI-assisted product that turns a short business questionnaire into a structured starter direction for branding and communication.
+A bilingual AI-assisted branding product that turns scattered business context into a structured starter brief for positioning, tone of voice and visual direction.
 
 **Live demo:** https://ai-brand-brief.vercel.app/  
 **Russian version:** https://ai-brand-brief.vercel.app/ru/
 
-The project was created as part of my transition from graphic design and advertising into **AI-assisted product building / vibe coding**.
+## Portfolio snapshot
 
-## What the product does
+**Role:** Product concept · UX/UI · prompt architecture · front-end · serverless integration · deployment  
+**Status:** MVP v0.4 — deployed  
+**Format:** EN / RU · responsive web app  
+**Core idea:** turn an unclear client brief into an editable strategic starting point
 
-The user answers a short set of questions about a business and receives a structured result containing:
+## Problem
+
+Branding projects often begin with fragmented client input: goals, audience, competitors and visual preferences arrive as separate notes instead of a usable brief. That creates extra clarification work before design can even begin.
+
+## Solution
+
+AI Brand Brief structures that raw context into seven practical sections:
 
 - brand summary
 - audience focus
@@ -19,122 +28,118 @@ The user answers a short set of questions about a business and receives a struct
 - visual direction
 - recommended next step
 
-The generated result can be **edited directly in the interface**, copied as formatted text, or saved as a clean **PDF through the browser print workflow**.
+The result can be edited directly in the interface, copied as formatted text and saved as PDF through the browser print workflow.
 
-## Current MVP
+## Product flow
 
-**MVP v0.4 — bilingual deployed portfolio prototype**
+```text
+Questionnaire
+    ↓
+Language-aware browser UI
+    ↓
+POST /api/generate
+    ↓
+Serverless generation endpoint
+    ↓
+Validated structured brief
+    ↓
+Editable result
+    ↓
+Copy / Save PDF
+```
 
-The project is publicly deployed on Vercel and now includes:
+When AI credentials are unavailable, the product automatically switches to a deterministic local fallback instead of breaking the experience.
 
-- English interface
-- Russian interface at `/ru/`
-- language-aware demo generation
-- server-side AI generation path through `api/generate.js`
-- deterministic fallback when AI credentials are unavailable
-- editable generated sections
-- copy-to-clipboard
-- PDF export / print layout
-- responsive UI
+## Key product decisions
 
-The current public deployment intentionally runs safely without a private API credential. The browser never receives or stores an API key.
+### 1. Safe server-side AI architecture
 
-## Why I built it
+The API credential is never exposed in browser-visible JavaScript. The interface talks to a serverless endpoint, while credentials are expected only as deployment environment variables.
 
-My background is in graphic design, branding and advertising. A recurring problem in design projects is that clients often start with scattered information instead of a usable brief.
+### 2. Graceful fallback
 
-This product explores how an AI-assisted workflow can structure that context before visual work begins. Instead of building a generic coding exercise, I wanted the first product in my AI-builder portfolio to solve a problem connected to my actual professional experience.
+A public portfolio demo should remain testable without a paid API account. The fallback keeps the full user flow working and clearly identifies when it was used.
 
-## My role
+### 3. Editable output
 
-- Product concept
-- UX structure
-- UI direction
-- Brand / communication logic
-- Prompt and output architecture
-- Front-end implementation with AI-assisted coding
-- Serverless AI integration
-- Bilingual product flow
-- Editing and export features
-- Error and fallback flow
-- Deployment
-- Testing and iteration
+Generated strategy is treated as a draft, not a final answer. Users can refine sections before copying or exporting the result.
+
+### 4. Lightweight PDF export
+
+Instead of adding a heavy PDF dependency, the MVP uses print-specific CSS and the browser's native Save as PDF workflow.
+
+### 5. Shared bilingual logic
+
+English and Russian interfaces reuse the same product logic and endpoint. Language is passed through the generation flow rather than maintaining two separate applications.
+
+## What I built
+
+- Product concept and use case
+- Questionnaire information architecture
+- Editorial UI direction
+- Responsive front-end
+- EN / RU product flow
+- Structured generation contract
+- Serverless API route
+- Output validation
+- deterministic fallback logic
+- direct result editing
+- clipboard export
+- print / PDF layout
+- Vercel deployment
 
 ## Stack
 
 - HTML5
 - CSS3
 - Vanilla JavaScript
-- Responsive layout
 - Browser Clipboard API
 - ContentEditable API
 - Print / PDF CSS
 - Serverless JavaScript API route
-- OpenAI-compatible server-side generation architecture
-- Environment variables for secret management
+- environment variables for secret management
 - Git / GitHub
 - Vercel
 
-## Architecture
+## What I learned
 
-```text
-User questionnaire
-      ↓
-Browser UI (EN / RU)
-      ↓
-POST /api/generate
-      ↓
-Serverless function
-      ↓
-AI provider when configured
-      ↓
-Validated JSON brief
-      ↓
-Editable result
-      ↓
-Copy / Save PDF
-```
+This project moved my branding experience into product-building practice. The main technical lessons were separating browser and server responsibilities, designing predictable structured output, handling external-service failure, managing secrets correctly and building one product flow for two languages.
 
-If the server-side request fails or AI credentials are not configured, the frontend switches to a deterministic local fallback instead of breaking the experience.
+It also reinforced a product principle I want to keep using: AI should support a workflow, not become the workflow itself. The interface still needs to be useful, understandable and recover gracefully when the model layer is unavailable.
 
-## Security decision
+## Current MVP
 
-The AI API key is **never stored in `app.js` or any other browser-visible file**. For a private or production AI-enabled deployment, credentials should be added only as server-side environment variables in the deployment platform.
+**MVP v0.4 — bilingual deployed portfolio prototype**
 
-## Product decisions
+Included now:
 
-### Graceful fallback
+- EN / RU interface
+- responsive layout
+- questionnaire → structured output flow
+- AI-ready server endpoint
+- safe deterministic fallback
+- editable generated sections
+- copy to clipboard
+- browser PDF export
+- deployed live demo
 
-The app remains usable even when the external AI service is unavailable. The fallback keeps the whole product flow testable without exposing credentials or creating API costs.
-
-### Editable output
-
-Generated strategy is treated as a working draft rather than a final answer. The user can switch the result into edit mode, refine individual sections, and then copy or save the edited version.
-
-### PDF without a heavy dependency
-
-The MVP uses a dedicated print stylesheet and the browser's native **Save as PDF** flow instead of adding a large client-side PDF library.
-
-### Bilingual flow
-
-The English and Russian interfaces share the same logic and server endpoint. The selected interface language is passed to the generation layer so a future live AI response can follow the user's language.
-
-### Design-led development
-
-The interface uses a restrained editorial visual system rather than a generic SaaS template. The goal is to combine product thinking with my existing visual communication skills.
-
-## Next improvements
+## Next iterations
 
 - local brief history
 - regenerate individual sections
 - stronger schema-constrained model output
-- lightweight request limiting / abuse protection
-- accessibility and UX testing
-- optional private AI-enabled deployment
+- lightweight abuse protection
+- accessibility testing
+- optional private AI-enabled production deployment
 
-## About
+## Related work
 
-Created by **Anostosio°**  
+**Job Search CRM:** https://job-search-crm-psi.vercel.app/  
+A second AI-builder portfolio project focused on local-first state, pipeline management and transparent rule-based vacancy matching.
+
+**Portfolio:** https://anostosio.ru/
+
+---
+
+Created by **Anastosio°**  
 Graphic Design · Branding · Advertising · AI-assisted Product Building
-
-Portfolio: https://anostosio.ru/
