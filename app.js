@@ -1,6 +1,9 @@
 const form = document.getElementById('briefForm');
 const exampleButton = document.getElementById('exampleButton');
 const copyButton = document.getElementById('copyButton');
+const submitButton = form.querySelector('button[type="submit"]');
+const submitLabel = submitButton.querySelector('span:first-child');
+const statusText = document.getElementById('generationStatus');
 const emptyState = document.getElementById('emptyState');
 const result = document.getElementById('result');
 const resultTitle = document.getElementById('resultTitle');
@@ -37,6 +40,8 @@ const example = {
   avoid: 'Wellness clichés, pastel gradients, mystical language, hustle culture and corporate HR tone.'
 };
 
+let latestBrief = null;
+
 function normalizeWords(value) {
   return value
     .split(',')
@@ -44,7 +49,7 @@ function normalizeWords(value) {
     .filter(Boolean);
 }
 
-function buildBrief(data) {
+function buildDemoBrief(data) {
   const traits = normalizeWords(data.personality);
   const mainTrait = traits[0] || 'clear';
   const secondaryTrait = traits[1] || 'human';
@@ -67,12 +72,12 @@ function buildBrief(data) {
       `${data.goal} without relying on generic category language.`
     ],
     visual: `Build a visual system around ${traits.slice(0, 3).join(', ') || 'clarity, confidence and warmth'}. Use a disciplined hierarchy, distinctive typography, purposeful contrast and a limited set of repeatable graphic behaviours. ${avoidText}`,
-    next: `Validate this direction against 3–5 real competitors, then turn it into a moodboard, message hierarchy and one key application. The next iteration should test whether the positioning is both distinctive and believable for the target audience.`
+    next: 'Validate this direction against 3–5 real competitors, then turn it into a moodboard, message hierarchy and one key application. The next iteration should test whether the positioning is both distinctive and believable for the target audience.'
   };
 }
 
-function renderBrief(data) {
-  const brief = buildBrief(data);
+function renderBrief(data, brief, mode = 'ai') {
+  latestBrief = brief;
   resultTitle.textContent = `${data.brandName} — starter direction`;
   outputs.summary.textContent = brief.summary;
   outputs.audience.textContent = brief.audience;
@@ -89,28 +94,63 @@ function renderBrief(data) {
   emptyState.hidden = true;
   result.hidden = false;
   copyButton.disabled = false;
+  statusText.textContent = mode === 'ai'
+    ? 'Generated with AI · strategic starter direction, not market research.'
+    : 'Demo fallback used · connect the server-side API key for live AI generation.';
 }
 
 function getFormData() {
   return Object.fromEntries(Object.entries(fields).map(([key, element]) => [key, element.value.trim()]));
 }
 
-form.addEventListener('submit', event => {
+async function generateWithAI(data) {
+  const response = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.brief) {
+    throw new Error(payload.error || 'AI generation is unavailable.');
+  }
+
+  return payload.brief;
+}
+
+async function handleGeneration(data) {
+  submitButton.disabled = true;
+  submitLabel.textContent = 'Generating…';
+  statusText.textContent = 'Turning your answers into a structured direction…';
+
+  try {
+    const brief = await generateWithAI(data);
+    renderBrief(data, brief, 'ai');
+  } catch (error) {
+    console.warn(error);
+    renderBrief(data, buildDemoBrief(data), 'demo');
+  } finally {
+    submitButton.disabled = false;
+    submitLabel.textContent = 'Generate brand direction';
+  }
+}
+
+form.addEventListener('submit', async event => {
   event.preventDefault();
   if (!form.reportValidity()) return;
-  renderBrief(getFormData());
+  await handleGeneration(getFormData());
 });
 
-exampleButton.addEventListener('click', () => {
+exampleButton.addEventListener('click', async () => {
   Object.entries(example).forEach(([key, value]) => {
     fields[key].value = value;
   });
-  renderBrief(example);
+  await handleGeneration(example);
 });
 
 copyButton.addEventListener('click', async () => {
   const data = getFormData();
-  const brief = buildBrief(data);
+  const brief = latestBrief || buildDemoBrief(data);
   const text = [
     `${data.brandName} — AI Brand Brief`,
     '',
