@@ -19,41 +19,25 @@ Requirements:
 - The output is a strategic starter direction, not completed market research.`;
 
 function extractText(response) {
-  if (typeof response.output_text === 'string' && response.output_text.trim()) {
-    return response.output_text.trim();
-  }
-
+  if (typeof response.output_text === 'string' && response.output_text.trim()) return response.output_text.trim();
   for (const item of response.output || []) {
     for (const part of item.content || []) {
-      if (part.type === 'output_text' && typeof part.text === 'string') {
-        return part.text.trim();
-      }
+      if (part.type === 'output_text' && typeof part.text === 'string') return part.text.trim();
     }
   }
-
   return '';
 }
 
 function parseModelJson(text) {
-  const cleaned = text
-    .replace(/^```json\s*/i, '')
-    .replace(/^```\s*/i, '')
-    .replace(/\s*```$/, '')
-    .trim();
-
+  const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '').trim();
   const parsed = JSON.parse(cleaned);
   const requiredStrings = ['summary', 'audience', 'positioning', 'tone', 'visual', 'next'];
-
   for (const key of requiredStrings) {
-    if (typeof parsed[key] !== 'string' || !parsed[key].trim()) {
-      throw new Error(`Invalid model output: ${key}`);
-    }
+    if (typeof parsed[key] !== 'string' || !parsed[key].trim()) throw new Error(`Invalid model output: ${key}`);
   }
-
   if (!Array.isArray(parsed.messages) || parsed.messages.length !== 3 || parsed.messages.some(item => typeof item !== 'string')) {
     throw new Error('Invalid model output: messages');
   }
-
   return parsed;
 }
 
@@ -63,41 +47,32 @@ export default async function handler(request, response) {
     return response.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!process.env.OPENAI_API_KEY) {
-    return response.status(503).json({ error: 'AI service is not configured yet.' });
-  }
+  if (!process.env.OPENAI_API_KEY) return response.status(503).json({ error: 'AI service is not configured yet.' });
 
   const data = request.body;
-  if (!data || typeof data !== 'object') {
-    return response.status(400).json({ error: 'Invalid request body.' });
-  }
+  if (!data || typeof data !== 'object') return response.status(400).json({ error: 'Invalid request body.' });
 
   const required = ['brandName', 'business', 'audience', 'goal', 'personality'];
   for (const key of required) {
-    if (typeof data[key] !== 'string' || !data[key].trim()) {
-      return response.status(400).json({ error: `Missing field: ${key}` });
-    }
+    if (typeof data[key] !== 'string' || !data[key].trim()) return response.status(400).json({ error: `Missing field: ${key}` });
   }
 
+  const language = data.language === 'ru' ? 'Russian' : 'English';
   const safeData = Object.fromEntries(
-    Object.entries(data).map(([key, value]) => [key, typeof value === 'string' ? value.trim().slice(0, 2500) : ''])
+    Object.entries(data)
+      .filter(([key]) => key !== 'language')
+      .map(([key, value]) => [key, typeof value === 'string' ? value.trim().slice(0, 2500) : ''])
   );
 
   try {
     const aiResponse = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` },
       body: JSON.stringify({
         model: process.env.OPENAI_MODEL || 'gpt-5.6-luna',
         input: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          {
-            role: 'user',
-            content: `Create a starter brand direction from this project data:\n${JSON.stringify(safeData, null, 2)}`
-          }
+          { role: 'system', content: `${SYSTEM_PROMPT}\n\nWrite every output field in ${language}.` },
+          { role: 'user', content: `Create a starter brand direction from this project data:\n${JSON.stringify(safeData, null, 2)}` }
         ],
         max_output_tokens: 1800
       })
@@ -111,9 +86,7 @@ export default async function handler(request, response) {
 
     const text = extractText(payload);
     if (!text) throw new Error('Empty model response');
-
-    const brief = parseModelJson(text);
-    return response.status(200).json({ brief });
+    return response.status(200).json({ brief: parseModelJson(text) });
   } catch (error) {
     console.error('Generation error', error);
     return response.status(500).json({ error: 'Could not generate a structured brief.' });
