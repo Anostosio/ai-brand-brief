@@ -5,6 +5,10 @@ A bilingual AI-assisted branding product that turns scattered business context i
 **Live demo:** https://ai-brand-brief.vercel.app/  
 **Russian version:** https://ai-brand-brief.vercel.app/ru/
 
+## Preview
+
+![AI Brand Brief — Russian interface](assets/ai-brand-brief-preview.webp)
+
 ## Portfolio snapshot
 
 **Role:** Product concept · UX/UI · prompt architecture · front-end · serverless integration · deployment  
@@ -141,5 +145,5 @@ A second AI-builder portfolio project focused on local-first state, pipeline man
 
 ---
 
-Created by **Anastosio°**  
+Created by **Anostosio°**  
 Graphic Design · Branding · Advertising · AI-assisted Product Building
