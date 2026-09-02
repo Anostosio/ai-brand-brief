@@ -3,96 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AI Brand Brief превращает короткий бриф о бизнесе в структурированное стартовое направление бренда." />
-  <title>AI Brand Brief — Anostosio°</title>
+  <meta name="description" content="Соберите структурированный редактируемый бренд-бриф из реальных вводных, не выдавая предположения ИИ за исследование." />
+  <meta name="theme-color" content="#f4f0eb" />
+  <title>Brand Brief Studio — Anostosio°</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../style.css" />
 </head>
 <body data-lang="ru">
+  <a class="skip-link" href="#briefForm">Перейти к анкете</a>
   <header class="site-header">
-    <a class="brand" href="#">Anostosio° / AI Lab</a>
+    <a class="brand" href="/ru/">Anostosio° / Product Lab</a>
     <div class="header-actions">
-      <nav class="language-switch" aria-label="Язык">
-        <a href="/">EN</a>
-        <span class="is-active">RU</span>
-      </nav>
-      <span class="pill">MVP · AI-assisted product</span>
+      <nav class="language-switch" aria-label="Язык"><a href="/">EN</a><span class="is-active">RU</span></nav>
+      <span class="pill">Версия 1.0 · рабочий бриф</span>
     </div>
   </header>
 
   <main>
-    <section class="hero">
+    <section class="hero" aria-labelledby="pageTitle">
       <div class="hero-copy">
-        <p class="eyebrow">От разрозненных мыслей к понятному направлению</p>
-        <h1>Соберите ясный бренд-бриф за несколько минут.</h1>
-        <p class="lead">Опишите бизнес, аудиторию и цели. AI Brand Brief превращает ответы в структурированную стартовую основу для позиционирования, тона коммуникации и визуального направления.</p>
+        <p class="eyebrow">Серьёзная отправная точка для работы над брендом</p>
+        <h1 id="pageTitle">Превратите вводные о проекте в бриф, с которым можно работать.</h1>
+        <p class="lead">Зафиксируйте бизнес-задачу, аудиторию, доказательства и ограничения. Brand Brief Studio соберёт редактируемый рабочий документ и отдельно покажет предположения, которые ещё нужно проверить.</p>
       </div>
-      <div class="hero-note">
-        <span>01</span><p>Заполните бриф</p>
-        <span>02</span><p>Получите направление</p>
-        <span>03</span><p>Отредактируйте, скопируйте или сохраните</p>
+      <div class="hero-note" aria-label="Как это работает">
+        <span>01</span><p>Зафиксируйте факты и неизвестное</p>
+        <span>02</span><p>Получите структурированный черновик</p>
+        <span>03</span><p>Проверьте, исправьте и экспортируйте</p>
       </div>
     </section>
 
     <section class="workspace">
-      <form id="briefForm" class="panel form-panel">
+      <form id="briefForm" class="panel form-panel" novalidate>
         <div class="panel-heading">
-          <div><p class="kicker">Вводные</p><h2>Расскажите о проекте</h2></div>
-          <button type="button" class="text-button" id="exampleButton">Заполнить пример</button>
+          <div><p class="kicker">Вводные проекта</p><h2>Анкета для бренд-брифа</h2></div>
+          <div class="compact-actions"><button type="button" class="text-button" id="exampleButton">Заполнить пример</button><button type="button" class="text-button muted-action" id="clearButton">Очистить</button></div>
         </div>
 
-        <label>Название бренда / проекта<input id="brandName" name="brandName" placeholder="Например, Mellow Club" required /></label>
-        <label>Чем занимается бизнес?<textarea id="business" name="business" rows="3" placeholder="Опишите продукт или услугу в нескольких предложениях." required></textarea></label>
-        <div class="field-grid">
-          <label>Основная аудитория<input id="audience" name="audience" placeholder="Для кого это в первую очередь?" required /></label>
-          <label>Рынок / география<input id="market" name="market" placeholder="Например, Европа, онлайн" /></label>
+        <div class="completion" aria-label="Заполнение анкеты">
+          <div><span id="completionLabel">Заполнено 0%</span><span id="draftStatus">Черновик не сохранён</span></div>
+          <progress id="completionProgress" max="100" value="0">0%</progress>
         </div>
-        <label>Главная бизнес-задача
-          <select id="goal" name="goal" required>
-            <option value="">Выберите вариант</option>
-            <option>Запуск нового бренда</option>
-            <option>Репозиционирование существующего бренда</option>
-            <option>Повысить доверие и узнаваемость</option>
-            <option>Уточнить коммуникацию</option>
-            <option>Подготовиться к рекламной кампании</option>
-          </select>
-        </label>
-        <label>Желаемый характер бренда<input id="personality" name="personality" placeholder="Например: спокойный, умный, тёплый, премиальный" required /></label>
-        <label>Конкуренты или альтернативы<input id="competitors" name="competitors" placeholder="Необязательно: названия или типы конкурентов" /></label>
-        <label>Чего бренду стоит избегать?<textarea id="avoid" name="avoid" rows="2" placeholder="Клише, визуальные стили, слова, ассоциации..."></textarea></label>
 
-        <button class="primary-button" type="submit"><span>Сгенерировать направление</span><span aria-hidden="true">↗</span></button>
-        <p class="form-hint" id="generationStatus">Живая AI-генерация включится после настройки безопасного серверного API. Пока встроенный демо-режим позволяет использовать продукт без передачи ключей в браузер.</p>
+        <fieldset>
+          <legend><span>01</span> Основа проекта</legend>
+          <label for="brandName">Название бренда / проекта <em>Обязательно</em><input id="brandName" name="brandName" maxlength="100" autocomplete="organization" placeholder="Например, Mellow Club" required /></label>
+          <label for="business">Что предлагает бизнес? <em>Обязательно</em><textarea id="business" name="business" maxlength="1200" rows="4" placeholder="Опишите продукт или услугу, принцип работы и контекст использования." required></textarea></label>
+          <label for="problem">Какую проблему должен решить проект? <em>Обязательно</em><textarea id="problem" name="problem" maxlength="800" rows="3" placeholder="Опишите бизнес- или коммуникационную задачу, а не желаемый визуальный стиль." required></textarea></label>
+          <div class="field-grid">
+            <label for="goal">Главная бизнес-цель <em>Обязательно</em><select id="goal" name="goal" required><option value="">Выберите вариант</option><option>Запуск нового бренда</option><option>Репозиционирование существующего бренда</option><option>Повысить доверие и узнаваемость</option><option>Уточнить коммуникацию</option><option>Подготовиться к рекламной кампании</option></select></label>
+            <label for="market">Рынок / география<input id="market" name="market" maxlength="240" placeholder="Например, Европа, онлайн" /></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>02</span> Аудитория и отличие</legend>
+          <label for="audience">Основная аудитория <em>Обязательно</em><textarea id="audience" name="audience" maxlength="800" rows="3" placeholder="Кто должен выбрать, использовать или рекомендовать бренд? Чем точнее, тем лучше." required></textarea></label>
+          <label for="audienceNeed">Потребность, барьер или напряжение аудитории<textarea id="audienceNeed" name="audienceNeed" maxlength="800" rows="3" placeholder="Чего люди хотят добиться и что им мешает? Отмечайте предположения как предположения."></textarea></label>
+          <label for="competitors">Конкуренты или альтернативы<input id="competitors" name="competitors" maxlength="600" placeholder="Названия, категории или вариант ничего не менять" /></label>
+          <label for="differentiator">Почему аудитория должна выбрать этот бренд? <em>Обязательно</em><textarea id="differentiator" name="differentiator" maxlength="800" rows="3" placeholder="Укажите реальное и защищаемое отличие, а не только желаемое качество." required></textarea></label>
+          <label for="proof">Доказательства и опорные факты<textarea id="proof" name="proof" maxlength="800" rows="3" placeholder="Отзывы, экспертиза, процесс, особенности продукта или результаты. Оставьте пустым, если данных пока нет."></textarea></label>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>03</span> Выражение и объём работ</legend>
+          <label for="personality">Желаемый характер бренда <em>Обязательно</em><input id="personality" name="personality" maxlength="300" placeholder="Например: спокойный, умный, тёплый, сдержанно-премиальный" required /></label>
+          <label for="deliverables">Приоритетные материалы<input id="deliverables" name="deliverables" maxlength="500" placeholder="Например: айдентика, лендинг, шаблоны соцсетей, упаковка" /></label>
+          <label for="avoid">Чего бренду нельзя допускать?<textarea id="avoid" name="avoid" maxlength="600" rows="3" placeholder="Клише категории, слова, визуальные коды, ассоциации или юридические ограничения."></textarea></label>
+          <label for="notes">Дополнительный контекст<textarea id="notes" name="notes" maxlength="800" rows="3" placeholder="Сроки, участники согласования, обязательные элементы или нерешённые вопросы."></textarea></label>
+        </fieldset>
+
+        <div id="formError" class="inline-error" role="alert" hidden></div>
+        <button class="primary-button" type="submit"><span>Собрать рабочий бриф</span><span aria-hidden="true">↗</span></button>
+        <p class="form-hint">Черновик и последние брифы хранятся только в этом браузере. При генерации ответы отправляются на серверный endpoint и не считаются подтверждённым исследованием.</p>
       </form>
 
-      <section class="panel result-panel" aria-live="polite">
+      <section class="panel result-panel" aria-live="polite" aria-busy="false">
         <div class="panel-heading result-heading">
-          <div><p class="kicker">Результат</p><h2 id="resultTitle">Здесь появится направление бренда</h2></div>
-          <div class="result-actions">
-            <button type="button" class="text-button" id="editButton" disabled>Редактировать</button>
-            <button type="button" class="text-button" id="copyButton" disabled>Копировать</button>
-            <button type="button" class="text-button" id="pdfButton" disabled>Сохранить PDF</button>
-          </div>
+          <div><p class="kicker">Рабочий документ</p><h2 id="resultTitle">Здесь появится ваш бриф</h2></div>
+          <select id="historySelect" class="history-select" aria-label="Открыть недавний бриф"><option value="">Недавние брифы</option></select>
         </div>
 
-        <div id="emptyState" class="empty-state"><div class="orbit" aria-hidden="true"><span></span></div><p>Заполните анкету, чтобы превратить разрозненный контекст о бизнесе в структурированный креативный бриф.</p></div>
+        <div id="generationNotice" class="generation-notice" role="status" hidden>
+          <strong id="noticeTitle"></strong><p id="noticeText"></p>
+          <div class="notice-actions"><button type="button" class="text-button" id="retryButton">Повторить с ИИ</button><button type="button" class="text-button" id="localDraftButton">Собрать локальный черновик</button></div>
+        </div>
 
-        <div id="result" class="result-content" hidden>
-          <article><span>01</span><div><h3>Описание бренда</h3><p id="summaryOutput" data-editable></p></div></article>
-          <article><span>02</span><div><h3>Фокус на аудитории</h3><p id="audienceOutput" data-editable></p></div></article>
-          <article><span>03</span><div><h3>Направление позиционирования</h3><p id="positioningOutput" data-editable></p></div></article>
-          <article><span>04</span><div><h3>Тон коммуникации</h3><p id="toneOutput" data-editable></p></div></article>
-          <article><span>05</span><div><h3>Ключевые сообщения</h3><ul id="messagesOutput" data-editable></ul></div></article>
-          <article><span>06</span><div><h3>Визуальное направление</h3><p id="visualOutput" data-editable></p></div></article>
-          <article><span>07</span><div><h3>Следующий шаг</h3><p id="nextOutput" data-editable></p></div></article>
+        <div id="emptyState" class="empty-state"><div class="brief-mark" aria-hidden="true"><span></span><span></span><span></span></div><h3>Начните с фактов</h3><p>Заполните обязательные поля. Дополнительные вводные сделают результат точнее и покажут, что ещё требует проверки.</p></div>
+
+        <div id="result" hidden>
+          <div class="result-toolbar">
+            <span id="resultMeta"></span>
+            <div class="result-actions"><button type="button" class="text-button" id="editButton">Редактировать</button><button type="button" class="text-button" id="copyButton">Копировать</button><button type="button" class="text-button" id="jsonButton">JSON</button><button type="button" class="text-button" id="pdfButton">Сохранить PDF</button></div>
+          </div>
+          <div class="result-content">
+            <article><span>01</span><div><h3>Обзор проекта</h3><p id="overviewOutput" data-editable></p></div></article>
+            <article><span>02</span><div><h3>Ключевая задача</h3><p id="challengeOutput" data-editable></p></div></article>
+            <article><span>03</span><div><h3>Аудитория</h3><p id="audienceOutput" data-editable></p></div></article>
+            <article><span>04</span><div><h3>Инсайт об аудитории</h3><p id="insightOutput" data-editable></p></div></article>
+            <article><span>05</span><div><h3>Направление позиционирования</h3><p id="positioningOutput" data-editable></p></div></article>
+            <article><span>06</span><div><h3>Ценностное предложение</h3><p id="valuePropositionOutput" data-editable></p></div></article>
+            <article><span>07</span><div><h3>Характер бренда</h3><p id="personalityOutput" data-editable></p></div></article>
+            <article><span>08</span><div><h3>Тон коммуникации</h3><p id="toneOutput" data-editable></p></div></article>
+            <article><span>09</span><div><h3>Ключевые сообщения</h3><ul id="messagesOutput" data-editable></ul></div></article>
+            <article><span>10</span><div><h3>Визуальное направление</h3><p id="visualOutput" data-editable></p></div></article>
+            <article><span>11</span><div><h3>Материалы и носители</h3><p id="deliverablesOutput" data-editable></p></div></article>
+            <article class="risk-section"><span>12</span><div><h3>Риски и неизвестное</h3><p id="risksOutput" data-editable></p></div></article>
+            <article><span>13</span><div><h3>Следующие шаги</h3><ol id="nextStepsOutput" data-editable></ol></div></article>
+          </div>
         </div>
       </section>
     </section>
   </main>
 
-  <footer><p>Концепция, UX/UI и направление продукта — Anostosio°</p><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">anostosio.ru ↗</a></footer>
-  <script src="../app.js"></script>
+  <footer><p>Концепция продукта, UX/UI и методология бренда — Anostosio°</p><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Портфолио ↗</a></footer>
+  <script type="module" src="../app.js"></script>
 </body>
 </html>
