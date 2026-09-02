@@ -1,10 +1,11 @@
 {
   "name": "ai-brand-brief",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage",
     "check": "node --check app.js && node --check api/generate.js && node --check lib/brief-core.js"
   },
   "engines": {

@@ -2,6 +2,8 @@
 
 A bilingual, AI-assisted workspace for turning real project context into an editable brand brief—without presenting model assumptions as market research.
 
+![Brand Brief Studio interface](assets/ai-brand-brief-preview.webp)
+
 **Live product:** https://ai-brand-brief.vercel.app/
 
 **Russian version:** https://ai-brand-brief.vercel.app/ru/
@@ -10,7 +12,7 @@ A bilingual, AI-assisted workspace for turning real project context into an edit
 
 **Role:** product concept · brand methodology · UX/UI · front-end · serverless integration · testing · deployment
 
-**Status:** v1.1
+**Status:** v1.2 · Trust & Quality
 
 **Format:** EN / RU · responsive web application
 
@@ -31,24 +33,20 @@ Brand Brief Studio asks for the context that a serious first brief needs:
 - defensible difference and proof
 - personality, deliverables and constraints
 
-It turns those inputs into 13 editable sections, including positioning, value proposition, messaging, visual direction, risks and ordered next steps. Missing evidence remains visible instead of being silently filled with invented research.
+It turns those inputs into 13 editable sections, including positioning, value proposition, messaging, visual direction, risks and ordered next steps. Every section also carries a visible evidence status—grounded, mixed, hypothesis or needs validation—plus the questionnaire fields that support it.
+
+Before generation, a local readiness diagnostic scores five dimensions: foundation, audience tension, competitive difference, evidence and scope. This improves the input without spending an AI request.
 
 ## Product flow
 
-```text
-Professional questionnaire
-        ↓
-Local autosave + validation
-        ↓
-POST /api/generate
-        ↓
-Server-side input limits + rate guard
-        ↓
-Groq API + strict JSON Schema
-        ↓
-Validated working brief
-        ↓
-Edit · history · copy · JSON · PDF
+```mermaid
+flowchart TD
+  A[Project-type questionnaire] --> B[Local readiness diagnostic]
+  B --> C[Validated server request]
+  C --> D[Groq strict structured output]
+  D --> E[Brief + evidence map + 2 routes]
+  E --> F[Edit · history · import · export]
+  C -. unavailable .-> G[Labelled local fallback]
 ```
 
 If AI generation is unavailable, the interface preserves the answers and offers two explicit choices: retry or create a clearly labelled local structured draft. It never disguises a template as a successful AI response.
@@ -57,7 +55,22 @@ If AI generation is unavailable, the interface preserves the answers and offers 
 
 ### Evidence-aware output
 
-The prompt forbids invented research, market claims and proof. The output includes a dedicated “Risks and unknowns” section so uncertainty remains part of the working document.
+The prompt forbids invented research, channels, deliverables, sample sizes, market claims and proof. The data contract requires an evidence status, source-field list and uncertainty note for every section. The output also includes a dedicated “Risks and unknowns” section.
+
+| Status | Meaning |
+| --- | --- |
+| Grounded | Directly supported by supplied fields |
+| Mixed | Supplied facts plus professional interpretation |
+| Hypothesis | A strategic or creative proposal to test |
+| Needs validation | Evidence is missing or contradictory |
+
+### Project-aware generation
+
+The questionnaire supports new brands, rebrands, campaigns, personal brands, digital products and packaging. The selected type changes the guidance and becomes part of the generation context.
+
+### Alternative routes
+
+Each generation includes two deliberately different strategic routes with positioning, tone, visual principle, advantage and risk. They are clearly presented as proposals rather than research conclusions.
 
 ### Schema-constrained generation
 
@@ -71,25 +84,29 @@ API errors, timeouts and unavailable credentials produce a recoverable interface
 
 Questionnaire drafts and the eight most recent briefs are stored in the current browser. No account is required, and recent work can be reopened and edited.
 
-### Lightweight exports
+Versioned JSON export and import make projects portable without introducing accounts or a database.
 
-The product supports formatted clipboard output, machine-readable JSON and a print-optimized browser PDF workflow without adding heavy client dependencies.
+### Client-ready exports
+
+The product supports formatted clipboard output, a versioned machine-readable JSON format and a print-optimized A4 document with a cover, readiness score, evidence labels and alternative directions.
 
 ## Reliability and safety
 
 - API credentials remain server-side
 - required-field and length validation in browser and server
 - request body size limit
-- request timeout and best-effort per-instance rate guard
+- request timeout, per-IP guard and per-instance global quota protection
 - strict schema-constrained model output
 - output validation before rendering
+- one automatic retry if a model response fails local quality validation
+- request ID, duration and outcome logging without questionnaire content
 - explicit warning against submitting confidential client information
 - no HTML injection from generated content
 - security headers and restrictive Content Security Policy
 - reduced-motion and keyboard-focus support
 - automated core tests and GitHub Actions checks
 
-The in-memory rate guard is intentionally lightweight for this portfolio deployment. A production multi-instance service should use a shared rate-limit store or the hosting provider’s firewall.
+The in-memory guards are intentionally lightweight for this portfolio deployment. A production multi-instance service should use a shared rate-limit store or the hosting provider’s firewall.
 
 Questionnaire answers submitted for AI generation are processed by Groq. The public demo should be used with fictional or non-confidential project information.
 
@@ -104,6 +121,10 @@ Questionnaire answers submitted for AI generation are processed by Groq. The pub
 - Node.js built-in test runner
 - GitHub Actions
 - Vercel
+
+## Quality checks
+
+The dependency-free test suite covers sanitization, required inputs, readiness scoring, local fallback generation, evidence metadata, alternatives, provider parsing, upstream error classification and the bilingual HTML interaction contract.
 
 ## Run locally
 
@@ -125,8 +146,8 @@ GROQ_MODEL=openai/gpt-oss-20b
 ## Project structure
 
 ```text
-api/generate.js          server-side generation and validation
-lib/brief-core.js        shared data rules and local-draft logic
+api/generate.js          server-side generation, retry, limits and safe logging
+lib/brief-core.js        shared validation, readiness, trust and fallback logic
 test/                    dependency-free core tests
 .github/workflows/       automated quality checks
 index.html               English interface
@@ -138,7 +159,7 @@ vercel.json              deployment security headers
 
 ## What I learned
 
-This project connects my branding practice with product-building. The most important lesson was that a reliable AI product is not defined by the prompt alone: it needs good input structure, explicit uncertainty, predictable data contracts, recoverable errors and a useful workflow before and after generation.
+This project connects my branding practice with product-building. The central product decision was to make uncertainty visible instead of polishing it away. A reliable AI product needs good inputs, evidence-aware output, predictable contracts, recoverable errors and a useful workflow before and after generation.
 
 ## Related work
 

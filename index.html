@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Create a structured, editable brand brief from real project context without treating AI assumptions as research." />
   <meta name="theme-color" content="#f4f0eb" />
+  <meta property="og:title" content="Brand Brief Studio — Anostosio°" />
+  <meta property="og:description" content="An evidence-aware AI workspace for creating practical brand briefs." />
+  <meta property="og:image" content="https://ai-brand-brief.vercel.app/assets/ai-brand-brief-preview.webp" />
+  <meta property="og:type" content="website" />
   <title>Brand Brief Studio — Anostosio°</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,7 +21,7 @@
     <a class="brand" href="/">Anostosio° / Product Lab</a>
     <div class="header-actions">
       <nav class="language-switch" aria-label="Language"><span class="is-active">EN</span><a href="/ru/">RU</a></nav>
-      <span class="pill">Version 1.1 · working brief</span>
+      <span class="pill">Version 1.2 · trust &amp; quality</span>
     </div>
   </header>
 
@@ -39,7 +43,7 @@
       <form id="briefForm" class="panel form-panel" novalidate>
         <div class="panel-heading">
           <div><p class="kicker">Project input</p><h2>Brand questionnaire</h2></div>
-          <div class="compact-actions"><button type="button" class="text-button" id="exampleButton">Use example</button><button type="button" class="text-button muted-action" id="clearButton">Clear</button></div>
+          <div class="compact-actions"><button type="button" class="text-button" id="exampleButton">Use example</button><button type="button" class="text-button" id="importButton">Import JSON</button><button type="button" class="text-button muted-action" id="clearButton">Clear</button><input id="importInput" type="file" accept="application/json,.json" hidden /></div>
         </div>
 
         <div class="completion" aria-label="Questionnaire completion">
@@ -47,15 +51,22 @@
           <progress id="completionProgress" max="100" value="0">0%</progress>
         </div>
 
+        <aside class="readiness" aria-live="polite" aria-labelledby="readinessTitle">
+          <div class="readiness-heading"><div><p class="kicker">Input quality</p><h3 id="readinessTitle">Brief readiness</h3></div><strong id="readinessScore">0</strong></div>
+          <p id="readinessSummary"></p>
+          <ul id="readinessChecks"></ul>
+        </aside>
+
         <fieldset>
           <legend><span>01</span> Foundation</legend>
+          <div class="field-grid">
+            <label for="projectType">Project type <em>Required</em><select id="projectType" name="projectType" required><option value="">Choose one</option><option value="new-brand">New brand</option><option value="rebrand">Rebrand</option><option value="campaign">Campaign</option><option value="personal-brand">Personal brand</option><option value="digital-product">Digital product</option><option value="packaging">Packaging</option></select><small id="projectTypeHint" class="field-hint">The project type adapts the strategic emphasis.</small></label>
+            <label for="goal">Primary business goal <em>Required</em><select id="goal" name="goal" required><option value="">Choose one</option><option>Launch a new brand</option><option>Reposition an existing brand</option><option>Increase trust and recognition</option><option>Clarify messaging</option><option>Prepare for a campaign</option></select></label>
+          </div>
           <label for="brandName">Brand / project name <em>Required</em><input id="brandName" name="brandName" maxlength="100" autocomplete="organization" placeholder="e.g. Mellow Club" required /></label>
           <label for="business">What does the business offer? <em>Required</em><textarea id="business" name="business" maxlength="1200" rows="4" placeholder="Describe the product or service, how it works and where it is used." required></textarea></label>
           <label for="problem">What problem must this project solve? <em>Required</em><textarea id="problem" name="problem" maxlength="800" rows="3" placeholder="Describe the business or communication challenge, not the desired visual style." required></textarea></label>
-          <div class="field-grid">
-            <label for="goal">Primary business goal <em>Required</em><select id="goal" name="goal" required><option value="">Choose one</option><option>Launch a new brand</option><option>Reposition an existing brand</option><option>Increase trust and recognition</option><option>Clarify messaging</option><option>Prepare for a campaign</option></select></label>
-            <label for="market">Market / geography<input id="market" name="market" maxlength="240" placeholder="e.g. Europe, online" /></label>
-          </div>
+          <label for="market">Market / geography<input id="market" name="market" maxlength="240" placeholder="e.g. Europe, online" /></label>
         </fieldset>
 
         <fieldset>
@@ -94,6 +105,7 @@
         <div id="emptyState" class="empty-state"><div class="brief-mark" aria-hidden="true"><span></span><span></span><span></span></div><h3>Start with the facts</h3><p>Complete the required fields. Optional context makes the result more specific and exposes what still needs validation.</p></div>
 
         <div id="result" hidden>
+          <section class="print-cover" aria-hidden="true"><p>ANOSTOSIO° / BRAND BRIEF STUDIO</p><h1 id="printTitle"></h1><div><span id="printDate"></span><span id="printReadiness"></span></div></section>
           <div class="result-toolbar">
             <span id="resultMeta"></span>
             <div class="result-actions"><button type="button" class="text-button" id="editButton">Edit</button><button type="button" class="text-button" id="copyButton">Copy</button><button type="button" class="text-button" id="jsonButton">JSON</button><button type="button" class="text-button" id="pdfButton">Save PDF</button></div>
@@ -113,6 +125,11 @@
             <article class="risk-section"><span>12</span><div><h3>Risks and unknowns</h3><p id="risksOutput" data-editable></p></div></article>
             <article><span>13</span><div><h3>Next steps</h3><ol id="nextStepsOutput" data-editable></ol></div></article>
           </div>
+          <details class="alternatives" id="alternativeDirections">
+            <summary>Explore two alternative strategic directions</summary>
+            <p class="alternatives-intro">These are proposals for discussion, not research findings.</p>
+            <div class="alternative-grid" id="alternativesOutput"></div>
+          </details>
         </div>
       </section>
     </section>
