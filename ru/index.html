@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Соберите структурированный редактируемый бренд-бриф из реальных вводных, не выдавая предположения ИИ за исследование." />
   <meta name="theme-color" content="#f4f0eb" />
+  <meta property="og:title" content="Brand Brief Studio — Anostosio°" />
+  <meta property="og:description" content="ИИ-инструмент для доказательного и практичного бренд-брифа." />
+  <meta property="og:image" content="https://ai-brand-brief.vercel.app/assets/ai-brand-brief-preview.webp" />
+  <meta property="og:type" content="website" />
   <title>Brand Brief Studio — Anostosio°</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,7 +21,7 @@
     <a class="brand" href="/ru/">Anostosio° / Product Lab</a>
     <div class="header-actions">
       <nav class="language-switch" aria-label="Язык"><a href="/">EN</a><span class="is-active">RU</span></nav>
-      <span class="pill">Версия 1.1 · рабочий бриф</span>
+      <span class="pill">Версия 1.2 · доверие и качество</span>
     </div>
   </header>
 
@@ -39,7 +43,7 @@
       <form id="briefForm" class="panel form-panel" novalidate>
         <div class="panel-heading">
           <div><p class="kicker">Вводные проекта</p><h2>Анкета для бренд-брифа</h2></div>
-          <div class="compact-actions"><button type="button" class="text-button" id="exampleButton">Заполнить пример</button><button type="button" class="text-button muted-action" id="clearButton">Очистить</button></div>
+          <div class="compact-actions"><button type="button" class="text-button" id="exampleButton">Заполнить пример</button><button type="button" class="text-button" id="importButton">Импорт JSON</button><button type="button" class="text-button muted-action" id="clearButton">Очистить</button><input id="importInput" type="file" accept="application/json,.json" hidden /></div>
         </div>
 
         <div class="completion" aria-label="Заполнение анкеты">
@@ -47,15 +51,22 @@
           <progress id="completionProgress" max="100" value="0">0%</progress>
         </div>
 
+        <aside class="readiness" aria-live="polite" aria-labelledby="readinessTitle">
+          <div class="readiness-heading"><div><p class="kicker">Качество вводных</p><h3 id="readinessTitle">Готовность брифа</h3></div><strong id="readinessScore">0</strong></div>
+          <p id="readinessSummary"></p>
+          <ul id="readinessChecks"></ul>
+        </aside>
+
         <fieldset>
           <legend><span>01</span> Основа проекта</legend>
+          <div class="field-grid">
+            <label for="projectType">Тип проекта <em>Обязательно</em><select id="projectType" name="projectType" required><option value="">Выберите вариант</option><option value="new-brand">Новый бренд</option><option value="rebrand">Ребрендинг</option><option value="campaign">Рекламная кампания</option><option value="personal-brand">Личный бренд</option><option value="digital-product">Цифровой продукт</option><option value="packaging">Упаковка</option></select><small id="projectTypeHint" class="field-hint">Тип проекта меняет стратегический акцент результата.</small></label>
+            <label for="goal">Главная бизнес-цель <em>Обязательно</em><select id="goal" name="goal" required><option value="">Выберите вариант</option><option>Запуск нового бренда</option><option>Репозиционирование существующего бренда</option><option>Повысить доверие и узнаваемость</option><option>Уточнить коммуникацию</option><option>Подготовиться к рекламной кампании</option></select></label>
+          </div>
           <label for="brandName">Название бренда / проекта <em>Обязательно</em><input id="brandName" name="brandName" maxlength="100" autocomplete="organization" placeholder="Например, Mellow Club" required /></label>
           <label for="business">Что предлагает бизнес? <em>Обязательно</em><textarea id="business" name="business" maxlength="1200" rows="4" placeholder="Опишите продукт или услугу, принцип работы и контекст использования." required></textarea></label>
           <label for="problem">Какую проблему должен решить проект? <em>Обязательно</em><textarea id="problem" name="problem" maxlength="800" rows="3" placeholder="Опишите бизнес- или коммуникационную задачу, а не желаемый визуальный стиль." required></textarea></label>
-          <div class="field-grid">
-            <label for="goal">Главная бизнес-цель <em>Обязательно</em><select id="goal" name="goal" required><option value="">Выберите вариант</option><option>Запуск нового бренда</option><option>Репозиционирование существующего бренда</option><option>Повысить доверие и узнаваемость</option><option>Уточнить коммуникацию</option><option>Подготовиться к рекламной кампании</option></select></label>
-            <label for="market">Рынок / география<input id="market" name="market" maxlength="240" placeholder="Например, Европа, онлайн" /></label>
-          </div>
+          <label for="market">Рынок / география<input id="market" name="market" maxlength="240" placeholder="Например, Европа, онлайн" /></label>
         </fieldset>
 
         <fieldset>
@@ -94,6 +105,7 @@
         <div id="emptyState" class="empty-state"><div class="brief-mark" aria-hidden="true"><span></span><span></span><span></span></div><h3>Начните с фактов</h3><p>Заполните обязательные поля. Дополнительные вводные сделают результат точнее и покажут, что ещё требует проверки.</p></div>
 
         <div id="result" hidden>
+          <section class="print-cover" aria-hidden="true"><p>ANOSTOSIO° / BRAND BRIEF STUDIO</p><h1 id="printTitle"></h1><div><span id="printDate"></span><span id="printReadiness"></span></div></section>
           <div class="result-toolbar">
             <span id="resultMeta"></span>
             <div class="result-actions"><button type="button" class="text-button" id="editButton">Редактировать</button><button type="button" class="text-button" id="copyButton">Копировать</button><button type="button" class="text-button" id="jsonButton">JSON</button><button type="button" class="text-button" id="pdfButton">Сохранить PDF</button></div>
@@ -113,6 +125,11 @@
             <article class="risk-section"><span>12</span><div><h3>Риски и неизвестное</h3><p id="risksOutput" data-editable></p></div></article>
             <article><span>13</span><div><h3>Следующие шаги</h3><ol id="nextStepsOutput" data-editable></ol></div></article>
           </div>
+          <details class="alternatives" id="alternativeDirections">
+            <summary>Посмотреть два альтернативных направления</summary>
+            <p class="alternatives-intro">Это предложения для обсуждения, а не результаты исследования.</p>
+            <div class="alternative-grid" id="alternativesOutput"></div>
+          </details>
         </div>
       </section>
     </section>
