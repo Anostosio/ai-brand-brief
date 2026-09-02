@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AI Brand Brief превращает короткий бриф о бизнесе в структурированное стартовое направление бренда." />
+  <title>AI Brand Brief — Anostosio°</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body data-lang="ru">
+  <header class="site-header">
+    <a class="brand" href="#">Anostosio° / AI Lab</a>
+    <div class="header-actions">
+      <nav class="language-switch" aria-label="Язык">
+        <a href="/">EN</a>
+        <span class="is-active">RU</span>
+      </nav>
+      <span class="pill">MVP · AI-assisted product</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">От разрозненных мыслей к понятному направлению</p>
+        <h1>Соберите ясный бренд-бриф за несколько минут.</h1>
+        <p class="lead">Опишите бизнес, аудиторию и цели. AI Brand Brief превращает ответы в структурированную стартовую основу для позиционирования, тона коммуникации и визуального направления.</p>
+      </div>
+      <div class="hero-note">
+        <span>01</span><p>Заполните бриф</p>
+        <span>02</span><p>Получите направление</p>
+        <span>03</span><p>Отредактируйте, скопируйте или сохраните</p>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <form id="briefForm" class="panel form-panel">
+        <div class="panel-heading">
+          <div><p class="kicker">Вводные</p><h2>Расскажите о проекте</h2></div>
+          <button type="button" class="text-button" id="exampleButton">Заполнить пример</button>
+        </div>
+
+        <label>Название бренда / проекта<input id="brandName" name="brandName" placeholder="Например, Mellow Club" required /></label>
+        <label>Чем занимается бизнес?<textarea id="business" name="business" rows="3" placeholder="Опишите продукт или услугу в нескольких предложениях." required></textarea></label>
+        <div class="field-grid">
+          <label>Основная аудитория<input id="audience" name="audience" placeholder="Для кого это в первую очередь?" required /></label>
+          <label>Рынок / география<input id="market" name="market" placeholder="Например, Европа, онлайн" /></label>
+        </div>
+        <label>Главная бизнес-задача
+          <select id="goal" name="goal" required>
+            <option value="">Выберите вариант</option>
+            <option>Запуск нового бренда</option>
+            <option>Репозиционирование существующего бренда</option>
+            <option>Повысить доверие и узнаваемость</option>
+            <option>Уточнить коммуникацию</option>
+            <option>Подготовиться к рекламной кампании</option>
+          </select>
+        </label>
+        <label>Желаемый характер бренда<input id="personality" name="personality" placeholder="Например: спокойный, умный, тёплый, премиальный" required /></label>
+        <label>Конкуренты или альтернативы<input id="competitors" name="competitors" placeholder="Необязательно: названия или типы конкурентов" /></label>
+        <label>Чего бренду стоит избегать?<textarea id="avoid" name="avoid" rows="2" placeholder="Клише, визуальные стили, слова, ассоциации..."></textarea></label>
+
+        <button class="primary-button" type="submit"><span>Сгенерировать направление</span><span aria-hidden="true">↗</span></button>
+        <p class="form-hint" id="generationStatus">Живая AI-генерация включится после настройки безопасного серверного API. Пока встроенный демо-режим позволяет использовать продукт без передачи ключей в браузер.</p>
+      </form>
+
+      <section class="panel result-panel" aria-live="polite">
+        <div class="panel-heading result-heading">
+          <div><p class="kicker">Результат</p><h2 id="resultTitle">Здесь появится направление бренда</h2></div>
+          <div class="result-actions">
+            <button type="button" class="text-button" id="editButton" disabled>Редактировать</button>
+            <button type="button" class="text-button" id="copyButton" disabled>Копировать</button>
+            <button type="button" class="text-button" id="pdfButton" disabled>Сохранить PDF</button>
+          </div>
+        </div>
+
+        <div id="emptyState" class="empty-state"><div class="orbit" aria-hidden="true"><span></span></div><p>Заполните анкету, чтобы превратить разрозненный контекст о бизнесе в структурированный креативный бриф.</p></div>
+
+        <div id="result" class="result-content" hidden>
+          <article><span>01</span><div><h3>Описание бренда</h3><p id="summaryOutput" data-editable></p></div></article>
+          <article><span>02</span><div><h3>Фокус на аудитории</h3><p id="audienceOutput" data-editable></p></div></article>
+          <article><span>03</span><div><h3>Направление позиционирования</h3><p id="positioningOutput" data-editable></p></div></article>
+          <article><span>04</span><div><h3>Тон коммуникации</h3><p id="toneOutput" data-editable></p></div></article>
+          <article><span>05</span><div><h3>Ключевые сообщения</h3><ul id="messagesOutput" data-editable></ul></div></article>
+          <article><span>06</span><div><h3>Визуальное направление</h3><p id="visualOutput" data-editable></p></div></article>
+          <article><span>07</span><div><h3>Следующий шаг</h3><p id="nextOutput" data-editable></p></div></article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer><p>Концепция, UX/UI и направление продукта — Anostosio°</p><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">anostosio.ru ↗</a></footer>
+  <script src="../app.js"></script>
+</body>
+</html>
