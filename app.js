@@ -1,254 +1,388 @@
+import {
+  BRIEF_KEYS,
+  FIELD_LIMITS,
+  REQUIRED_FIELDS,
+  buildLocalDraft,
+  sanitizeFormData,
+  validateBrief,
+  validateFormData
+} from './lib/brief-core.js';
+
+const language = document.body.dataset.lang === 'ru' ? 'ru' : 'en';
 const form = document.getElementById('briefForm');
-const exampleButton = document.getElementById('exampleButton');
-const copyButton = document.getElementById('copyButton');
-const editButton = document.getElementById('editButton');
-const pdfButton = document.getElementById('pdfButton');
+const formPanel = document.querySelector('.form-panel');
+const resultPanel = document.querySelector('.result-panel');
 const submitButton = form.querySelector('button[type="submit"]');
 const submitLabel = submitButton.querySelector('span:first-child');
-const statusText = document.getElementById('generationStatus');
-const emptyState = document.getElementById('emptyState');
-const result = document.getElementById('result');
-const resultTitle = document.getElementById('resultTitle');
-const language = document.body.dataset.lang === 'ru' ? 'ru' : 'en';
+const fields = Object.fromEntries(Object.keys(FIELD_LIMITS).map(key => [key, document.getElementById(key)]));
+const outputs = Object.fromEntries(BRIEF_KEYS.map(key => [key, document.getElementById(`${key}Output`)]));
 
-const fields = {
-  brandName: document.getElementById('brandName'),
-  business: document.getElementById('business'),
-  audience: document.getElementById('audience'),
-  market: document.getElementById('market'),
-  goal: document.getElementById('goal'),
-  personality: document.getElementById('personality'),
-  competitors: document.getElementById('competitors'),
-  avoid: document.getElementById('avoid')
-};
-
-const outputs = {
-  summary: document.getElementById('summaryOutput'),
-  audience: document.getElementById('audienceOutput'),
-  positioning: document.getElementById('positioningOutput'),
-  tone: document.getElementById('toneOutput'),
-  messages: document.getElementById('messagesOutput'),
-  visual: document.getElementById('visualOutput'),
-  next: document.getElementById('nextOutput')
-};
-
-const copy = {
+const ui = {
   en: {
     example: {
       brandName: 'Mellow Club',
-      business: 'A subscription-based digital wellbeing service that gives remote workers short guided reset sessions, focus rituals and low-pressure productivity tools.',
-      audience: 'Remote professionals aged 24–38 who feel mentally overloaded but dislike aggressive productivity culture.',
+      business: 'A subscription-based digital wellbeing service with short guided reset sessions, focus rituals and low-pressure productivity tools for remote workers.',
+      problem: 'The category often frames wellbeing as another performance target. The new brand must feel useful and credible without adding pressure or sounding clinical.',
+      audience: 'Remote professionals aged 24–38 who feel mentally overloaded but reject aggressive productivity culture.',
+      audienceNeed: 'They want a practical way to reset during the workday, but long routines and exaggerated wellness promises feel unrealistic.',
       market: 'Europe, English-speaking digital market',
       goal: 'Launch a new brand',
       personality: 'calm, intelligent, warm, contemporary, quietly premium',
-      competitors: 'Headspace, Calm, productivity apps and coworking communities',
-      avoid: 'Wellness clichés, pastel gradients, mystical language, hustle culture and corporate HR tone.'
+      competitors: 'Headspace, Calm, productivity apps, coworking communities and free video content',
+      differentiator: 'Five-minute reset rituals designed specifically for the rhythms and constraints of remote work.',
+      proof: 'Sessions are designed with an occupational wellbeing advisor; an early pilot included 42 remote professionals.',
+      deliverables: 'Core identity, landing page, onboarding screens and social launch templates',
+      avoid: 'Pastel wellness gradients, mystical language, hustle culture, medical claims and corporate HR tone.',
+      notes: 'The first launch is planned as a small paid pilot. The identity must work in a compact mobile interface.'
     },
-    titleSuffix: 'starter direction',
-    generating: 'Generating…',
-    waiting: 'Turning your answers into a structured direction…',
-    aiStatus: 'Generated with AI · strategic starter direction, not market research.',
-    demoStatus: 'Demo fallback used · connect the server-side API key for live AI generation.',
-    generate: 'Generate brand direction',
-    edit: 'Edit result',
+    complete: value => `${value}% complete`,
+    saved: 'Draft saved locally',
+    notSaved: 'Draft not saved',
+    requiredError: 'Complete all required fields before generating the brief.',
+    generate: 'Generate working brief',
+    generating: 'Building brief…',
+    edit: 'Edit',
     done: 'Done editing',
+    copy: 'Copy',
     copied: 'Copied',
     copyFailed: 'Copy failed',
-    copyLabel: 'Copy',
-    pdf: 'Save PDF'
+    aiMeta: date => `AI working draft · ${date}`,
+    localMeta: date => `Local structured draft · ${date} · no AI`,
+    errorTitle: 'AI generation is unavailable',
+    errorText: 'Your answers are still saved. Retry the request or create a clearly labelled local draft without AI.',
+    historyPlaceholder: 'Recent briefs',
+    clearConfirm: 'Clear the questionnaire and its saved draft?',
+    titleSuffix: 'working brand brief',
+    labels: ['PROJECT OVERVIEW', 'CORE CHALLENGE', 'AUDIENCE', 'AUDIENCE INSIGHT', 'POSITIONING DIRECTION', 'VALUE PROPOSITION', 'BRAND PERSONALITY', 'TONE OF VOICE', 'KEY MESSAGES', 'VISUAL DIRECTION', 'DELIVERABLES', 'RISKS AND UNKNOWNS', 'NEXT STEPS']
   },
   ru: {
     example: {
       brandName: 'Mellow Club',
-      business: 'Цифровой wellness-сервис по подписке для удалённых специалистов: короткие практики восстановления, ритуалы для фокуса и спокойные инструменты продуктивности.',
+      business: 'Цифровой wellness-сервис по подписке с короткими практиками восстановления, ритуалами для фокуса и спокойными инструментами продуктивности для удалённых специалистов.',
+      problem: 'Категория часто превращает заботу о себе в ещё одну гонку за эффективностью. Новый бренд должен быть полезным и убедительным, но не давить и не звучать клинически.',
       audience: 'Удалённые специалисты 24–38 лет, которые перегружены, но не принимают агрессивную культуру продуктивности.',
-      market: 'Европа, онлайн',
+      audienceNeed: 'Им нужен реалистичный способ восстановиться в течение рабочего дня, но длинные практики и громкие wellness-обещания кажутся неуместными.',
+      market: 'Европа, англоязычный онлайн-рынок',
       goal: 'Запуск нового бренда',
       personality: 'спокойный, умный, тёплый, современный, сдержанно-премиальный',
-      competitors: 'Headspace, Calm, приложения для продуктивности и coworking-сообщества',
-      avoid: 'Wellness-клише, пастельные градиенты, мистический язык, hustle-культура и корпоративный HR-тон.'
+      competitors: 'Headspace, Calm, приложения для продуктивности, coworking-сообщества и бесплатный видеоконтент',
+      differentiator: 'Пятиминутные ритуалы восстановления, разработанные именно под ритм и ограничения удалённой работы.',
+      proof: 'Практики разработаны вместе со специалистом по wellbeing на рабочем месте; в раннем пилоте участвовали 42 удалённых специалиста.',
+      deliverables: 'Айдентика, лендинг, onboarding-экраны и шаблоны для запуска в соцсетях',
+      avoid: 'Пастельные wellness-градиенты, мистический язык, hustle-культура, медицинские обещания и корпоративный HR-тон.',
+      notes: 'Первый запуск планируется как небольшой платный пилот. Айдентика должна работать в компактном мобильном интерфейсе.'
     },
-    titleSuffix: 'стартовое направление',
-    generating: 'Генерируем…',
-    waiting: 'Превращаем ответы в структурированное направление бренда…',
-    aiStatus: 'Сгенерировано ИИ · это стартовое стратегическое направление, а не исследование рынка.',
-    demoStatus: 'Использован демо-режим · для живой AI-генерации нужен серверный API-ключ.',
-    generate: 'Сгенерировать направление',
+    complete: value => `Заполнено ${value}%`,
+    saved: 'Черновик сохранён локально',
+    notSaved: 'Черновик не сохранён',
+    requiredError: 'Заполните все обязательные поля перед созданием брифа.',
+    generate: 'Собрать рабочий бриф',
+    generating: 'Собираем бриф…',
     edit: 'Редактировать',
     done: 'Готово',
+    copy: 'Копировать',
     copied: 'Скопировано',
     copyFailed: 'Не удалось скопировать',
-    copyLabel: 'Копировать',
-    pdf: 'Сохранить PDF'
+    aiMeta: date => `Рабочий AI-черновик · ${date}`,
+    localMeta: date => `Локальный структурированный черновик · ${date} · без ИИ`,
+    errorTitle: 'AI-генерация сейчас недоступна',
+    errorText: 'Ответы сохранены. Можно повторить запрос или собрать явно отмеченный локальный черновик без ИИ.',
+    historyPlaceholder: 'Недавние брифы',
+    clearConfirm: 'Очистить анкету и сохранённый черновик?',
+    titleSuffix: 'рабочий бренд-бриф',
+    labels: ['ОБЗОР ПРОЕКТА', 'КЛЮЧЕВАЯ ЗАДАЧА', 'АУДИТОРИЯ', 'ИНСАЙТ ОБ АУДИТОРИИ', 'НАПРАВЛЕНИЕ ПОЗИЦИОНИРОВАНИЯ', 'ЦЕННОСТНОЕ ПРЕДЛОЖЕНИЕ', 'ХАРАКТЕР БРЕНДА', 'ТОН КОММУНИКАЦИИ', 'КЛЮЧЕВЫЕ СООБЩЕНИЯ', 'ВИЗУАЛЬНОЕ НАПРАВЛЕНИЕ', 'МАТЕРИАЛЫ И НОСИТЕЛИ', 'РИСКИ И НЕИЗВЕСТНОЕ', 'СЛЕДУЮЩИЕ ШАГИ']
   }
 }[language];
 
+const elements = {
+  exampleButton: document.getElementById('exampleButton'),
+  clearButton: document.getElementById('clearButton'),
+  editButton: document.getElementById('editButton'),
+  copyButton: document.getElementById('copyButton'),
+  jsonButton: document.getElementById('jsonButton'),
+  pdfButton: document.getElementById('pdfButton'),
+  retryButton: document.getElementById('retryButton'),
+  localDraftButton: document.getElementById('localDraftButton'),
+  historySelect: document.getElementById('historySelect'),
+  completionProgress: document.getElementById('completionProgress'),
+  completionLabel: document.getElementById('completionLabel'),
+  draftStatus: document.getElementById('draftStatus'),
+  formError: document.getElementById('formError'),
+  generationNotice: document.getElementById('generationNotice'),
+  noticeTitle: document.getElementById('noticeTitle'),
+  noticeText: document.getElementById('noticeText'),
+  emptyState: document.getElementById('emptyState'),
+  result: document.getElementById('result'),
+  resultTitle: document.getElementById('resultTitle'),
+  resultMeta: document.getElementById('resultMeta')
+};
+
+const DRAFT_KEY = `brand-brief-studio:draft:${language}`;
+const HISTORY_KEY = `brand-brief-studio:history:${language}`;
+const MAX_HISTORY = 8;
 let latestBrief = null;
+let latestData = null;
+let currentEntryId = null;
 let editing = false;
-
-function normalizeWords(value) {
-  return value.split(',').map(item => item.trim()).filter(Boolean);
-}
-
-function buildDemoBrief(data) {
-  const traits = normalizeWords(data.personality);
-  if (language === 'ru') {
-    const traitText = traits.slice(0, 4).join(', ') || 'ясный, уверенный и человечный';
-    const visualTraits = traits.slice(0, 3).join(', ') || 'ясность, уверенность и тепло';
-    return {
-      summary: `${data.brandName} — бренд с характером «${traits.slice(0, 2).join(', ') || 'ясный и человечный'}», построенный вокруг идеи: ${data.business} Главная задача — ${data.goal.toLowerCase()}${data.market ? ` на рынке ${data.market}` : ''}.`,
-      audience: `Фокус — ${data.audience}. Коммуникация должна учитывать реальный контекст и мотивацию этой аудитории, не перегружая её объяснениями. Ценность бренда должна считываться быстро и быть связана с повседневными задачами людей.`,
-      positioning: `${data.brandName} стоит позиционировать как более продуманный и понятный выбор в своей категории. ${data.competitors ? `На фоне ${data.competitors} важно конкурировать за счёт ясности, уместности и собственного угла зрения.` : 'Важно избегать универсальных формул категории и строить более заметную точку зрения.'}`,
-      tone: `Тон бренда: ${traitText}. Формулировки — конкретные, естественные и уверенные, без перегретых обещаний и рекламной надменности.`,
-      messages: [
-        `${data.brandName} делает сложную потребность понятнее и удобнее.`,
-        `Решение строится вокруг реальных приоритетов аудитории: ${data.audience.toLowerCase()}.`,
-        `${data.goal} без шаблонного языка категории.`
-      ],
-      visual: `Визуальная система должна опираться на ${visualTraits}. Используйте дисциплинированную иерархию, выразительную типографику, осмысленный контраст и ограниченный набор повторяемых графических приёмов. ${data.avoid ? `Важно избегать: ${data.avoid.toLowerCase()}.` : 'Важно избегать визуальных клише и лишнего шума.'}`,
-      next: 'Сверить это направление с 3–5 реальными конкурентами, затем собрать мудборд, иерархию сообщений и один ключевой носитель. Следующий шаг должен проверить, насколько позиционирование одновременно отличается от рынка и выглядит правдоподобно для аудитории.'
-    };
-  }
-
-  const mainTrait = traits[0] || 'clear';
-  const secondaryTrait = traits[1] || 'human';
-  const market = data.market ? ` in ${data.market}` : '';
-  const competitorContext = data.competitors
-    ? `Unlike ${data.competitors}, the brand should compete through clarity, relevance and a more distinct point of view.`
-    : 'The brand should avoid generic category conventions and compete through clarity, relevance and a distinct point of view.';
-  const avoidText = data.avoid
-    ? `The system should deliberately avoid ${data.avoid.toLowerCase()}.`
-    : 'The system should avoid category clichés and visual noise.';
-
-  return {
-    summary: `${data.brandName} is a ${mainTrait}, ${secondaryTrait} brand built around ${data.business.charAt(0).toLowerCase()}${data.business.slice(1)} Its immediate objective is to ${data.goal.toLowerCase()}${market}.`,
-    audience: `Focus on ${data.audience}. Communication should recognise their existing context and motivations rather than over-explaining the category. The strongest messages will make the value feel immediately relevant to their everyday decisions.`,
-    positioning: `${data.brandName} should position itself as the more thoughtful and useful choice in its category: strategically clear, easy to understand and emotionally aligned with the audience. ${competitorContext}`,
-    tone: `Use a ${traits.slice(0, 4).join(', ') || 'clear, confident and human'} tone. Prefer concise language, specific benefits and natural phrasing. The voice should feel self-assured without sounding inflated, sales-heavy or impersonal.`,
-    messages: [
-      `${data.brandName} turns a complicated need into a clearer, easier experience.`,
-      `Designed around the real priorities of ${data.audience.toLowerCase()}.`,
-      `${data.goal} without relying on generic category language.`
-    ],
-    visual: `Build a visual system around ${traits.slice(0, 3).join(', ') || 'clarity, confidence and warmth'}. Use a disciplined hierarchy, distinctive typography, purposeful contrast and a limited set of repeatable graphic behaviours. ${avoidText}`,
-    next: 'Validate this direction against 3–5 real competitors, then turn it into a moodboard, message hierarchy and one key application. The next iteration should test whether the positioning is both distinctive and believable for the target audience.'
-  };
-}
-
-function renderBrief(data, brief, mode = 'ai') {
-  latestBrief = brief;
-  resultTitle.textContent = `${data.brandName} — ${copy.titleSuffix}`;
-  outputs.summary.textContent = brief.summary;
-  outputs.audience.textContent = brief.audience;
-  outputs.positioning.textContent = brief.positioning;
-  outputs.tone.textContent = brief.tone;
-  outputs.visual.textContent = brief.visual;
-  outputs.next.textContent = brief.next;
-  outputs.messages.replaceChildren(...brief.messages.map(message => {
-    const li = document.createElement('li');
-    li.textContent = message;
-    return li;
-  }));
-  emptyState.hidden = true;
-  result.hidden = false;
-  copyButton.disabled = false;
-  editButton.disabled = false;
-  pdfButton.disabled = false;
-  statusText.textContent = mode === 'ai' ? copy.aiStatus : copy.demoStatus;
-}
+let saveTimer = null;
 
 function getFormData() {
-  return { ...Object.fromEntries(Object.entries(fields).map(([key, element]) => [key, element.value.trim()])), language };
+  return sanitizeFormData({ ...Object.fromEntries(Object.entries(fields).map(([key, field]) => [key, field.value])), language });
+}
+
+function setFormData(data = {}) {
+  for (const [key, field] of Object.entries(fields)) field.value = typeof data[key] === 'string' ? data[key] : '';
+  updateCompletion();
+}
+
+function readStorage(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+}
+
+function writeStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function updateCompletion() {
+  const data = getFormData();
+  const values = Object.keys(FIELD_LIMITS).map(key => data[key]);
+  const percent = Math.round((values.filter(Boolean).length / values.length) * 100);
+  elements.completionProgress.value = percent;
+  elements.completionProgress.textContent = `${percent}%`;
+  elements.completionLabel.textContent = ui.complete(percent);
+}
+
+function saveDraft() {
+  const hasContent = Object.values(getFormData()).some((value, index) => index < Object.keys(FIELD_LIMITS).length && value);
+  if (!hasContent) {
+    localStorage.removeItem(DRAFT_KEY);
+    elements.draftStatus.textContent = ui.notSaved;
+    return;
+  }
+  const saved = writeStorage(DRAFT_KEY, { data: getFormData(), updatedAt: new Date().toISOString() });
+  elements.draftStatus.textContent = saved ? ui.saved : ui.notSaved;
+}
+
+function queueDraftSave() {
+  elements.draftStatus.textContent = ui.notSaved;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveDraft, 450);
+}
+
+function getHistory() {
+  const value = readStorage(HISTORY_KEY, []);
+  return Array.isArray(value) ? value.filter(entry => entry && validateBrief(entry.brief)) : [];
+}
+
+function refreshHistory() {
+  const history = getHistory();
+  elements.historySelect.replaceChildren(new Option(ui.historyPlaceholder, ''));
+  for (const entry of history) {
+    const date = new Intl.DateTimeFormat(language, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(entry.createdAt));
+    elements.historySelect.add(new Option(`${entry.data.brandName} · ${date}`, entry.id));
+  }
+  elements.historySelect.value = currentEntryId || '';
+}
+
+function saveToHistory(data, brief, mode, generatedAt = new Date().toISOString()) {
+  const history = getHistory();
+  const entry = { id: currentEntryId || crypto.randomUUID(), data, brief, mode, createdAt: generatedAt };
+  const next = [entry, ...history.filter(item => item.id !== entry.id)].slice(0, MAX_HISTORY);
+  writeStorage(HISTORY_KEY, next);
+  currentEntryId = entry.id;
+  refreshHistory();
+}
+
+function formatDate(date) {
+  return new Intl.DateTimeFormat(language, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(date));
+}
+
+function replaceList(element, items) {
+  element.replaceChildren(...items.map(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    return li;
+  }));
+}
+
+function renderBrief(data, brief, meta) {
+  if (!validateBrief(brief)) throw new Error('Invalid brief');
+  latestData = data;
+  latestBrief = brief;
+  elements.resultTitle.textContent = `${data.brandName} — ${ui.titleSuffix}`;
+  for (const key of BRIEF_KEYS) {
+    if (key === 'messages' || key === 'nextSteps') replaceList(outputs[key], brief[key]);
+    else outputs[key].textContent = brief[key];
+  }
+  const generatedAt = meta.generatedAt || new Date().toISOString();
+  elements.resultMeta.textContent = meta.mode === 'ai' ? ui.aiMeta(formatDate(generatedAt)) : ui.localMeta(formatDate(generatedAt));
+  elements.emptyState.hidden = true;
+  elements.generationNotice.hidden = true;
+  elements.result.hidden = false;
+  resultPanel.setAttribute('aria-busy', 'false');
+  setEditing(false);
+  saveToHistory(data, brief, meta.mode, generatedAt);
 }
 
 function syncEditedBrief() {
-  latestBrief = {
-    summary: outputs.summary.textContent.trim(),
-    audience: outputs.audience.textContent.trim(),
-    positioning: outputs.positioning.textContent.trim(),
-    tone: outputs.tone.textContent.trim(),
-    messages: [...outputs.messages.querySelectorAll('li')].map(li => li.textContent.trim()),
-    visual: outputs.visual.textContent.trim(),
-    next: outputs.next.textContent.trim()
-  };
+  if (!latestBrief) return;
+  const brief = {};
+  for (const key of BRIEF_KEYS) {
+    if (key === 'messages' || key === 'nextSteps') {
+      brief[key] = [...outputs[key].querySelectorAll('li')].map(item => item.textContent.trim()).filter(Boolean).slice(0, 3);
+    } else brief[key] = outputs[key].textContent.trim();
+  }
+  if (validateBrief(brief)) {
+    latestBrief = brief;
+    const history = getHistory();
+    const current = history.find(entry => entry.id === currentEntryId);
+    saveToHistory(latestData, brief, current?.mode || 'local', current?.createdAt || new Date().toISOString());
+  }
 }
 
 function setEditing(nextState) {
-  editing = nextState;
-  document.querySelectorAll('[data-editable]').forEach(node => node.setAttribute('contenteditable', String(editing)));
-  editButton.textContent = editing ? copy.done : copy.edit;
-  if (!editing) syncEditedBrief();
-}
-
-async function generateWithAI(data) {
-  const response = await fetch('/api/generate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
+  const wasEditing = editing;
+  editing = Boolean(nextState && latestBrief);
+  document.querySelectorAll('[data-editable]').forEach(node => {
+    node.setAttribute('contenteditable', String(editing));
+    node.setAttribute('spellcheck', String(editing));
   });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok || !payload.brief) throw new Error(payload.error || 'AI generation is unavailable.');
-  return payload.brief;
+  if (elements.editButton) elements.editButton.textContent = editing ? ui.done : ui.edit;
+  if (wasEditing && !editing) syncEditedBrief();
 }
 
-async function handleGeneration(data) {
-  setEditing(false);
-  submitButton.disabled = true;
-  submitLabel.textContent = copy.generating;
-  statusText.textContent = copy.waiting;
+function showGenerationError() {
+  resultPanel.setAttribute('aria-busy', 'false');
+  elements.noticeTitle.textContent = ui.errorTitle;
+  elements.noticeText.textContent = ui.errorText;
+  elements.generationNotice.hidden = false;
+  if (!latestBrief) elements.emptyState.hidden = false;
+}
+
+async function requestBrief(data) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 35_000);
   try {
-    renderBrief(data, await generateWithAI(data), 'ai');
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal: controller.signal
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !validateBrief(payload.brief)) throw new Error(payload?.error?.code || 'GENERATION_FAILED');
+    return payload;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function generate() {
+  const validation = validateFormData(getFormData());
+  elements.formError.hidden = true;
+  if (!validation.valid || !form.checkValidity()) {
+    elements.formError.textContent = ui.requiredError;
+    elements.formError.hidden = false;
+    const firstInvalid = REQUIRED_FIELDS.map(key => fields[key]).find(field => !field.value.trim()) || form.querySelector(':invalid');
+    firstInvalid?.focus();
+    return;
+  }
+
+  latestData = validation.data;
+  submitButton.disabled = true;
+  submitLabel.textContent = ui.generating;
+  resultPanel.setAttribute('aria-busy', 'true');
+  elements.generationNotice.hidden = true;
+  currentEntryId = null;
+  try {
+    const payload = await requestBrief(validation.data);
+    renderBrief(validation.data, payload.brief, payload.meta || { mode: 'ai' });
+    if (window.matchMedia('(max-width: 900px)').matches) resultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (error) {
-    console.warn(error);
-    renderBrief(data, buildDemoBrief(data), 'demo');
+    console.warn('Brief generation failed', error.message);
+    showGenerationError();
   } finally {
     submitButton.disabled = false;
-    submitLabel.textContent = copy.generate;
+    submitLabel.textContent = ui.generate;
   }
 }
 
-form.addEventListener('submit', async event => {
-  event.preventDefault();
-  if (!form.reportValidity()) return;
-  await handleGeneration(getFormData());
-});
+function createLocalDraft() {
+  const validation = validateFormData(getFormData());
+  if (!validation.valid) {
+    elements.formError.textContent = ui.requiredError;
+    elements.formError.hidden = false;
+    formPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  currentEntryId = null;
+  renderBrief(validation.data, buildLocalDraft(validation.data), { mode: 'local', generatedAt: new Date().toISOString() });
+}
 
-exampleButton.addEventListener('click', async () => {
-  Object.entries(copy.example).forEach(([key, value]) => { fields[key].value = value; });
-  await handleGeneration(getFormData());
-});
+function buildPlainText() {
+  const sections = BRIEF_KEYS.map((key, index) => {
+    const value = latestBrief[key];
+    const body = Array.isArray(value) ? value.map((item, itemIndex) => `${key === 'nextSteps' ? `${itemIndex + 1}.` : '•'} ${item}`).join('\n') : value;
+    return `${ui.labels[index]}\n${body}`;
+  });
+  return `${latestData.brandName} — Brand Brief Studio\n\n${sections.join('\n\n')}`;
+}
 
-editButton.addEventListener('click', () => setEditing(!editing));
-
-copyButton.addEventListener('click', async () => {
+function downloadJson() {
   syncEditedBrief();
-  const data = getFormData();
-  const brief = latestBrief || buildDemoBrief(data);
-  const labels = language === 'ru'
-    ? ['ОПИСАНИЕ БРЕНДА', 'АУДИТОРИЯ', 'ПОЗИЦИОНИРОВАНИЕ', 'ТОН КОММУНИКАЦИИ', 'КЛЮЧЕВЫЕ СООБЩЕНИЯ', 'ВИЗУАЛЬНОЕ НАПРАВЛЕНИЕ', 'СЛЕДУЮЩИЙ ШАГ']
-    : ['BRAND SUMMARY', 'AUDIENCE FOCUS', 'POSITIONING DIRECTION', 'TONE OF VOICE', 'KEY MESSAGES', 'VISUAL DIRECTION', 'NEXT STEP'];
-  const text = [
-    `${data.brandName} — AI Brand Brief`, '',
-    `${labels[0]}\n${brief.summary}`, '',
-    `${labels[1]}\n${brief.audience}`, '',
-    `${labels[2]}\n${brief.positioning}`, '',
-    `${labels[3]}\n${brief.tone}`, '',
-    `${labels[4]}\n${brief.messages.map(item => `• ${item}`).join('\n')}`, '',
-    `${labels[5]}\n${brief.visual}`, '',
-    `${labels[6]}\n${brief.next}`
-  ].join('\n');
+  const blob = new Blob([JSON.stringify({ project: latestData, brief: latestBrief }, null, 2)], { type: 'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${latestData.brandName.toLowerCase().replace(/[^a-zа-я0-9]+/gi, '-').replace(/^-|-$/g, '') || 'brand'}-brief.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
 
+form.addEventListener('input', () => { updateCompletion(); queueDraftSave(); });
+form.addEventListener('change', () => { updateCompletion(); queueDraftSave(); });
+form.addEventListener('submit', event => { event.preventDefault(); generate(); });
+
+elements.exampleButton.addEventListener('click', () => { setFormData(ui.example); saveDraft(); elements.formError.hidden = true; });
+elements.clearButton.addEventListener('click', () => {
+  if (!window.confirm(ui.clearConfirm)) return;
+  form.reset();
+  localStorage.removeItem(DRAFT_KEY);
+  elements.draftStatus.textContent = ui.notSaved;
+  elements.formError.hidden = true;
+  updateCompletion();
+  fields.brandName.focus();
+});
+elements.retryButton.addEventListener('click', generate);
+elements.localDraftButton.addEventListener('click', createLocalDraft);
+elements.editButton.addEventListener('click', () => setEditing(!editing));
+elements.copyButton.addEventListener('click', async () => {
+  syncEditedBrief();
   try {
-    await navigator.clipboard.writeText(text);
-    copyButton.textContent = copy.copied;
-    setTimeout(() => { copyButton.textContent = copy.copyLabel; }, 1400);
+    await navigator.clipboard.writeText(buildPlainText());
+    elements.copyButton.textContent = ui.copied;
+    setTimeout(() => { elements.copyButton.textContent = ui.copy; }, 1400);
   } catch {
-    copyButton.textContent = copy.copyFailed;
+    elements.copyButton.textContent = ui.copyFailed;
   }
 });
-
-pdfButton.addEventListener('click', () => {
-  if (editing) setEditing(false);
-  syncEditedBrief();
-  window.print();
+elements.jsonButton.addEventListener('click', downloadJson);
+elements.pdfButton.addEventListener('click', () => { setEditing(false); window.print(); });
+elements.historySelect.addEventListener('change', () => {
+  const entry = getHistory().find(item => item.id === elements.historySelect.value);
+  if (!entry) return;
+  currentEntryId = entry.id;
+  setFormData(entry.data);
+  renderBrief(entry.data, entry.brief, { mode: entry.mode, generatedAt: entry.createdAt });
 });
+
+const savedDraft = readStorage(DRAFT_KEY, null);
+if (savedDraft?.data) {
+  setFormData(savedDraft.data);
+  elements.draftStatus.textContent = ui.saved;
+} else updateCompletion();
+refreshHistory();

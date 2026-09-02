@@ -3,96 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AI Brand Brief turns a short business questionnaire into a structured brand strategy starter." />
-  <title>AI Brand Brief — Anostosio°</title>
+  <meta name="description" content="Create a structured, editable brand brief from real project context without treating AI assumptions as research." />
+  <meta name="theme-color" content="#f4f0eb" />
+  <title>Brand Brief Studio — Anostosio°</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body data-lang="en">
+  <a class="skip-link" href="#briefForm">Skip to questionnaire</a>
   <header class="site-header">
-    <a class="brand" href="#">Anostosio° / AI Lab</a>
+    <a class="brand" href="/">Anostosio° / Product Lab</a>
     <div class="header-actions">
-      <nav class="language-switch" aria-label="Language">
-        <span class="is-active">EN</span>
-        <a href="/ru/">RU</a>
-      </nav>
-      <span class="pill">MVP · AI-assisted product</span>
+      <nav class="language-switch" aria-label="Language"><span class="is-active">EN</span><a href="/ru/">RU</a></nav>
+      <span class="pill">Version 1.0 · working brief</span>
     </div>
   </header>
 
   <main>
-    <section class="hero">
+    <section class="hero" aria-labelledby="pageTitle">
       <div class="hero-copy">
-        <p class="eyebrow">From scattered thoughts to a usable direction</p>
-        <h1>Build a clearer brand brief in minutes.</h1>
-        <p class="lead">Describe your business, audience and goals. AI Brand Brief turns your answers into a concise strategic starting point for positioning, tone of voice and visual direction.</p>
+        <p class="eyebrow">A serious starting point for brand work</p>
+        <h1 id="pageTitle">Turn project context into a brief you can actually use.</h1>
+        <p class="lead">Capture the business problem, audience, evidence and constraints. Brand Brief Studio turns the inputs into an editable working document while keeping assumptions visible.</p>
       </div>
-      <div class="hero-note">
-        <span>01</span><p>Fill in the brief</p>
-        <span>02</span><p>Generate a direction</p>
-        <span>03</span><p>Edit, copy or save it</p>
+      <div class="hero-note" aria-label="How it works">
+        <span>01</span><p>Capture facts and unknowns</p>
+        <span>02</span><p>Generate a structured draft</p>
+        <span>03</span><p>Review, edit and export</p>
       </div>
     </section>
 
     <section class="workspace">
-      <form id="briefForm" class="panel form-panel">
+      <form id="briefForm" class="panel form-panel" novalidate>
         <div class="panel-heading">
-          <div><p class="kicker">Input</p><h2>Tell me about the project</h2></div>
-          <button type="button" class="text-button" id="exampleButton">Use example</button>
+          <div><p class="kicker">Project input</p><h2>Brand questionnaire</h2></div>
+          <div class="compact-actions"><button type="button" class="text-button" id="exampleButton">Use example</button><button type="button" class="text-button muted-action" id="clearButton">Clear</button></div>
         </div>
 
-        <label>Brand / project name<input id="brandName" name="brandName" placeholder="e.g. Mellow Club" required /></label>
-        <label>What does the business do?<textarea id="business" name="business" rows="3" placeholder="Describe the product or service in a few sentences." required></textarea></label>
-        <div class="field-grid">
-          <label>Primary audience<input id="audience" name="audience" placeholder="Who should care most?" required /></label>
-          <label>Market / geography<input id="market" name="market" placeholder="e.g. Europe, online" /></label>
+        <div class="completion" aria-label="Questionnaire completion">
+          <div><span id="completionLabel">0% complete</span><span id="draftStatus">Draft not saved</span></div>
+          <progress id="completionProgress" max="100" value="0">0%</progress>
         </div>
-        <label>Main business goal
-          <select id="goal" name="goal" required>
-            <option value="">Choose one</option>
-            <option>Launch a new brand</option>
-            <option>Reposition an existing brand</option>
-            <option>Increase trust and recognition</option>
-            <option>Clarify messaging</option>
-            <option>Prepare for a campaign</option>
-          </select>
-        </label>
-        <label>Desired brand personality<input id="personality" name="personality" placeholder="e.g. calm, clever, warm, premium" required /></label>
-        <label>Competitors or alternatives<input id="competitors" name="competitors" placeholder="Optional: names or types of competitors" /></label>
-        <label>Anything the brand should avoid?<textarea id="avoid" name="avoid" rows="2" placeholder="Clichés, visual styles, words, associations..."></textarea></label>
 
-        <button class="primary-button" type="submit"><span>Generate brand direction</span><span aria-hidden="true">↗</span></button>
-        <p class="form-hint" id="generationStatus">AI generation is ready when the secure server-side API is configured. A built-in demo fallback keeps the prototype usable without exposing credentials.</p>
+        <fieldset>
+          <legend><span>01</span> Foundation</legend>
+          <label for="brandName">Brand / project name <em>Required</em><input id="brandName" name="brandName" maxlength="100" autocomplete="organization" placeholder="e.g. Mellow Club" required /></label>
+          <label for="business">What does the business offer? <em>Required</em><textarea id="business" name="business" maxlength="1200" rows="4" placeholder="Describe the product or service, how it works and where it is used." required></textarea></label>
+          <label for="problem">What problem must this project solve? <em>Required</em><textarea id="problem" name="problem" maxlength="800" rows="3" placeholder="Describe the business or communication challenge, not the desired visual style." required></textarea></label>
+          <div class="field-grid">
+            <label for="goal">Primary business goal <em>Required</em><select id="goal" name="goal" required><option value="">Choose one</option><option>Launch a new brand</option><option>Reposition an existing brand</option><option>Increase trust and recognition</option><option>Clarify messaging</option><option>Prepare for a campaign</option></select></label>
+            <label for="market">Market / geography<input id="market" name="market" maxlength="240" placeholder="e.g. Europe, online" /></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>02</span> Audience and difference</legend>
+          <label for="audience">Primary audience <em>Required</em><textarea id="audience" name="audience" maxlength="800" rows="3" placeholder="Who should choose, use or recommend the brand? Be specific." required></textarea></label>
+          <label for="audienceNeed">Audience need, barrier or tension<textarea id="audienceNeed" name="audienceNeed" maxlength="800" rows="3" placeholder="What are they trying to achieve, and what gets in the way? Mark assumptions as assumptions."></textarea></label>
+          <label for="competitors">Competitors or alternatives<input id="competitors" name="competitors" maxlength="600" placeholder="Names, categories or the option of doing nothing" /></label>
+          <label for="differentiator">Why should the audience choose this brand? <em>Required</em><textarea id="differentiator" name="differentiator" maxlength="800" rows="3" placeholder="State a real, defensible difference—not only a desired adjective." required></textarea></label>
+          <label for="proof">Evidence and proof<textarea id="proof" name="proof" maxlength="800" rows="3" placeholder="Customer feedback, expertise, process, product facts or results. Leave blank if not yet known."></textarea></label>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>03</span> Expression and scope</legend>
+          <label for="personality">Desired brand personality <em>Required</em><input id="personality" name="personality" maxlength="300" placeholder="e.g. calm, intelligent, warm, quietly premium" required /></label>
+          <label for="deliverables">Priority deliverables<input id="deliverables" name="deliverables" maxlength="500" placeholder="e.g. identity, landing page, social templates, packaging" /></label>
+          <label for="avoid">What must the brand avoid?<textarea id="avoid" name="avoid" maxlength="600" rows="3" placeholder="Category clichés, words, visual codes, associations or legal constraints."></textarea></label>
+          <label for="notes">Additional context<textarea id="notes" name="notes" maxlength="800" rows="3" placeholder="Timeline, stakeholders, mandatory elements or unresolved questions."></textarea></label>
+        </fieldset>
+
+        <div id="formError" class="inline-error" role="alert" hidden></div>
+        <button class="primary-button" type="submit"><span>Generate working brief</span><span aria-hidden="true">↗</span></button>
+        <p class="form-hint">Your draft and recent briefs stay in this browser. Submitted answers are sent only to the generation endpoint and are not treated as verified research.</p>
       </form>
 
-      <section class="panel result-panel" aria-live="polite">
+      <section class="panel result-panel" aria-live="polite" aria-busy="false">
         <div class="panel-heading result-heading">
-          <div><p class="kicker">Output</p><h2 id="resultTitle">Your brand direction will appear here</h2></div>
-          <div class="result-actions">
-            <button type="button" class="text-button" id="editButton" disabled>Edit result</button>
-            <button type="button" class="text-button" id="copyButton" disabled>Copy</button>
-            <button type="button" class="text-button" id="pdfButton" disabled>Save PDF</button>
-          </div>
+          <div><p class="kicker">Working document</p><h2 id="resultTitle">Your brief will appear here</h2></div>
+          <select id="historySelect" class="history-select" aria-label="Open a recent brief"><option value="">Recent briefs</option></select>
         </div>
 
-        <div id="emptyState" class="empty-state"><div class="orbit" aria-hidden="true"><span></span></div><p>Complete the questionnaire to turn raw business context into a structured creative brief.</p></div>
+        <div id="generationNotice" class="generation-notice" role="status" hidden>
+          <strong id="noticeTitle"></strong><p id="noticeText"></p>
+          <div class="notice-actions"><button type="button" class="text-button" id="retryButton">Retry AI</button><button type="button" class="text-button" id="localDraftButton">Create local draft</button></div>
+        </div>
 
-        <div id="result" class="result-content" hidden>
-          <article><span>01</span><div><h3>Brand summary</h3><p id="summaryOutput" data-editable></p></div></article>
-          <article><span>02</span><div><h3>Audience focus</h3><p id="audienceOutput" data-editable></p></div></article>
-          <article><span>03</span><div><h3>Positioning direction</h3><p id="positioningOutput" data-editable></p></div></article>
-          <article><span>04</span><div><h3>Tone of voice</h3><p id="toneOutput" data-editable></p></div></article>
-          <article><span>05</span><div><h3>Key messages</h3><ul id="messagesOutput" data-editable></ul></div></article>
-          <article><span>06</span><div><h3>Visual direction</h3><p id="visualOutput" data-editable></p></div></article>
-          <article><span>07</span><div><h3>Next step</h3><p id="nextOutput" data-editable></p></div></article>
+        <div id="emptyState" class="empty-state"><div class="brief-mark" aria-hidden="true"><span></span><span></span><span></span></div><h3>Start with the facts</h3><p>Complete the required fields. Optional context makes the result more specific and exposes what still needs validation.</p></div>
+
+        <div id="result" hidden>
+          <div class="result-toolbar">
+            <span id="resultMeta"></span>
+            <div class="result-actions"><button type="button" class="text-button" id="editButton">Edit</button><button type="button" class="text-button" id="copyButton">Copy</button><button type="button" class="text-button" id="jsonButton">JSON</button><button type="button" class="text-button" id="pdfButton">Save PDF</button></div>
+          </div>
+          <div class="result-content">
+            <article><span>01</span><div><h3>Project overview</h3><p id="overviewOutput" data-editable></p></div></article>
+            <article><span>02</span><div><h3>Core challenge</h3><p id="challengeOutput" data-editable></p></div></article>
+            <article><span>03</span><div><h3>Audience</h3><p id="audienceOutput" data-editable></p></div></article>
+            <article><span>04</span><div><h3>Audience insight</h3><p id="insightOutput" data-editable></p></div></article>
+            <article><span>05</span><div><h3>Positioning direction</h3><p id="positioningOutput" data-editable></p></div></article>
+            <article><span>06</span><div><h3>Value proposition</h3><p id="valuePropositionOutput" data-editable></p></div></article>
+            <article><span>07</span><div><h3>Brand personality</h3><p id="personalityOutput" data-editable></p></div></article>
+            <article><span>08</span><div><h3>Tone of voice</h3><p id="toneOutput" data-editable></p></div></article>
+            <article><span>09</span><div><h3>Key messages</h3><ul id="messagesOutput" data-editable></ul></div></article>
+            <article><span>10</span><div><h3>Visual direction</h3><p id="visualOutput" data-editable></p></div></article>
+            <article><span>11</span><div><h3>Deliverables</h3><p id="deliverablesOutput" data-editable></p></div></article>
+            <article class="risk-section"><span>12</span><div><h3>Risks and unknowns</h3><p id="risksOutput" data-editable></p></div></article>
+            <article><span>13</span><div><h3>Next steps</h3><ol id="nextStepsOutput" data-editable></ol></div></article>
+          </div>
         </div>
       </section>
     </section>
   </main>
 
-  <footer><p>Concept, UX/UI and product direction by Anostosio°</p><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">anostosio.ru ↗</a></footer>
-  <script src="app.js"></script>
+  <footer><p>Product concept, UX/UI and brand methodology by Anostosio°</p><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Portfolio ↗</a></footer>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
