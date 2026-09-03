@@ -1,172 +1,144 @@
 # Brand Brief Studio — Privacy Data Map
 
-Status: **target Russian production architecture / migration branch**  
+Status: **zero-cost local-only target / migration branch**  
 Last reviewed: **2026-09-03**
 
-This document is a technical data-flow record, not a declaration of legal compliance. Production status is reached only after the Yandex Cloud deployment, operator details, Roskomnadzor obligations and account-level settings are verified.
+This is a technical data-flow record, not a declaration of legal compliance.
 
-## Target flow
+## Target questionnaire flow
 
 ```text
-User browser
-  ├─ local questionnaire draft ───────────────> browser localStorage only
-  ├─ recent brief history ───────────────────> browser localStorage only
-  ├─ optional Metrica consent ───────────────> Yandex Metrica only after opt-in
-  └─ Generate AI
-       ↓ HTTPS
-Yandex Cloud API Gateway — Russia
-       ↓
-Yandex Cloud Function — Russia
-       ├─ validation / body-size limit
-       ├─ raw client address -> in-process HMAC rate-limit key
-       ├─ request ID / outcome / duration logs only
-       └─ questionnaire
-            ↓
-Yandex Cloud AI Studio — Russia region target
-       ├─ llm.api.cloud.yandex.net/foundationModels/v1/completion
-       ├─ x-data-logging-enabled: false
-       └─ structured generation
-            ↓
-Cloud Function validates output
-       ↓
-Browser renders and stores recent result locally
+static site delivery
+        ↓
+user browser
+  ├─ questionnaire input
+  ├─ validation/readiness
+  ├─ evidence-aware local rules engine
+  ├─ structured brief + trust map + two routes
+  ├─ localStorage draft/history
+  └─ JSON/PDF export
+
+optional analytics
+  └─ Yandex Metrica only after opt-in
 ```
 
-The previous Vercel -> Groq route is **legacy** and must not remain the production AI path after migration.
+**No questionnaire field is intentionally sent to a Brand Brief Studio backend or remote AI provider.**
 
-Yandex Cloud's current region documentation states that user data is stored and available only within the individual region in which the resources reside. The production account/resources still have to be verified as using the Russia region; this repository cannot prove account configuration by itself.
+## Important implementation detail
 
-Official region reference: https://yandex.cloud/en/docs/overview/concepts/region
+`app.js` still calls the internal route-shaped interface `/api/generate`, but `bootstrap.js` installs `local-generation-adapter.js` before the app starts. The adapter intercepts that call in the browser and creates a local `Response` from `buildLocalGeneration()`.
+
+Production verification must confirm in DevTools that pressing Build does not create a real `/api/generate` network request.
 
 ## Data inventory
 
-| Data | Browser | API Gateway / Function | AI Studio | Application storage | Logging / metadata |
+| Data | Browser | Brand Brief Studio server | Remote AI | Static host / network | Analytics |
 | --- | --- | --- | --- | --- | --- |
-| Questionnaire content | Form + draft | Full validated POST on Generate | Full project input required for generation | No server application DB | Must never be passed to application `console.*` |
-| Potential personal data inside free text | Possible | Same as questionnaire | Same as questionnaire | No server application DB | Same rule as questionnaire |
-| Raw IP / client address | Network-level | Infrastructure receives it; app reads it only to derive HMAC key | Not intentionally included in AI prompt | No raw-IP application DB | Raw IP must not be added to Brand Brief Studio application logs; platform metadata must be verified separately |
-| HMAC rate-limit key | No | In-memory rate bucket | No | No persistent DB | Application memory only; 10-minute activity window |
-| Request ID | Receives in response metadata | Created/provided by runtime | Not intentionally included in prompt | No | Request ID + outcome + duration may be logged |
-| Timestamps | Draft/history timestamps | Request/runtime timestamps | Provider metadata may exist | Browser localStorage only for product records | Platform logs; verify production retention |
-| Generated output | Rendered/edited/exported | Returned and validated | Generated there | Up to 8 recent entries per language in localStorage | Must not be application-logged |
-| Evidence map / alternative routes | Rendered | Returned and validated | Generated there | Browser history | Same as generated output |
-| Analytics consent | localStorage | No | No | `brandBrief.analyticsConsent.v1` | No application log needed |
-| Metrica identifiers/events | After opt-in only | No app API involvement | No | Yandex/browser storage | Yandex Metrica according to counter settings |
+| Questionnaire fields | form + local processing | none | none | not intentionally included in requests | must not be intentionally sent |
+| Generated brief | render/edit/export | none | none | not intentionally included | must not be intentionally sent |
+| Draft/history | localStorage | none | none | none by product logic | no |
+| IP / request headers | normal page request | no app backend | none | hosting infrastructure receives ordinary request metadata | Metrica receives its own request metadata only after opt-in |
+| Analytics preference | localStorage | none | none | no | controls Metrica loading |
+| Exported JSON/PDF | user device | none | none | none by product logic | no |
 
 ## Browser storage
 
 ### Draft
 
-Key: `brand-brief-studio:draft:shared`
+`brand-brief-studio:draft:shared`
 
-Contains questionnaire data and `updatedAt`.
+Contains questionnaire data and an update timestamp.
 
 ### Recent history
 
-Key pattern: `brand-brief-studio:history:v12:<language>`
+`brand-brief-studio:history:v12:<language>`
 
-Maximum: 8 entries per language.
+Maximum: eight entries per language. An entry can include source questionnaire data, generated brief, trust/evidence metadata, alternative directions, mode and local timestamp.
 
-An entry includes:
-
-- source questionnaire `data`;
-- generated/local `brief`;
-- evidence/trust metadata;
-- alternative strategic routes;
-- mode and created timestamp.
-
-No automatic TTL exists. The UI includes **Delete local data**, which removes all `brand-brief-studio:*` keys from the current browser.
+No automatic TTL exists. The UI includes **Delete local data**, which removes all `brand-brief-studio:*` product keys from the current browser.
 
 ### Analytics preference
 
-Key: `brandBrief.analyticsConsent.v1`
+`brandBrief.analyticsConsent.v1` stores `accepted` or `declined`.
 
-Values: `accepted` / `declined`.
+Product draft/history deletion deliberately does not silently change the user's analytics preference.
 
-This preference is deliberately separate from product draft/history deletion.
+## Generation
 
-## AI generation
+Target generation type: **browser-local deterministic rules engine**.
 
-Target provider: **Yandex Cloud AI Studio** in the verified Russia-region production account.
+Files:
 
-Application controls:
+- `lib/brief-core.js` — sanitization, readiness, trust/evidence statuses and generated text;
+- `local-generation-adapter.js` — local response contract;
+- `bootstrap.js` — installs the adapter before `app.js` starts.
 
-- Russian Yandex Cloud Function adapter;
-- service-account IAM token from Cloud Functions context in production;
-- no long-lived AI API key required in repository or frontend;
-- current native text-generation REST endpoint: `https://llm.api.cloud.yandex.net/foundationModels/v1/completion`;
-- `x-data-logging-enabled: false` in AI request;
-- strict generation schema;
-- server-side output validation;
-- one retry for invalid structured output;
-- no prompt/output body in application logs.
+Controls:
 
-Current model target: `gpt://<folder_id>/yandexgpt-5.1` (explicit URI should be verified at deploy time).
+- required-field validation;
+- per-field length limits;
+- no remote AI call;
+- no server database;
+- output contract validation in the existing UI;
+- hypotheses and missing evidence remain labelled;
+- no claim that the result is market research.
 
-Official references:
+## Static hosting
 
-- Text generation REST API: https://yandex.cloud/en/docs/ai-studio/text-generation/api-ref/TextGeneration/completion
-- AI Studio request logging control: https://yandex.cloud/en/docs/ai-studio/concepts/resources/data-logging
-- YandexGPT model catalogue: https://yandex.cloud/en/docs/ai-studio/concepts/generation/models
-- Cloud Functions invocation context: https://yandex.cloud/en/docs/functions/lang/nodejs/context
-- Cloud Functions service-account authentication/context: https://yandex.cloud/en/docs/functions/operations/function-sa
+Target: **SourceCraft Sites / SourceCraft Free**.
 
-## Rate limiting and IP minimization
+SourceCraft documentation describes Sites as free static hosting with HTTPS and requires a public repository in a public organization.
 
-The legacy implementation used raw IP as an in-memory `Map` key. The migration core now immediately derives an HMAC-SHA256 pseudonymous key using an instance-local random secret.
+Production facts still to record:
 
-Important limitations:
+- SourceCraft organization and repository;
+- final public URL;
+- applicable hosting terms;
+- infrastructure log/access/retention information available to the operator.
 
-- this reduces application-level retention/exposure; it does **not** mean network infrastructure never receives the original IP;
-- HMAC pseudonymization is not the same as legal anonymization;
-- production API Gateway / Cloud Functions request metadata and logging must be checked in the actual account;
-- the application rate limiter is per warm function instance and is not a durable distributed quota;
-- if infrastructure/shared rate limiting is added later, its storage, region, logging and telemetry behavior must be reviewed before enabling.
+Static hosting still receives ordinary network metadata needed to deliver a page, including an IP address. Local-only questionnaire processing does not mean the website has zero technical-data processing at every infrastructure layer.
 
 ## Analytics
 
-Provider: **Yandex Metrica**, counter `112263821`.
+Yandex Metrica counter: `112263821`.
 
 Application behavior:
 
-- tag is not loaded before `accepted`;
-- decline sets the official counter-disable flag;
-- Session Replay / Webvisor is disabled (`webvisor: false`);
-- withdrawal disables future counter activity and attempts to remove accessible first-party `_ym_*` cookies/storage identifiers;
-- previously transmitted events cannot be withdrawn retroactively by client JavaScript.
+- tag does not load before `accepted`;
+- decline sets the counter-disable flag;
+- `webvisor: false`;
+- withdrawal blocks future counter activity and attempts best-effort cleanup of accessible first-party Metrica identifiers;
+- already transmitted analytics events are not retroactively erased by client JavaScript.
 
-Production owner action: verify the Metrica dashboard itself, including Session Replay and any advanced/contact-data tracking features, rather than relying only on repository JavaScript.
+Production owner action: verify the Metrica dashboard, especially Session Replay/Webvisor and advanced/contact-data tracking settings.
 
-## External services / domains
+## External runtime services
 
-| Service | Domain / surface | Purpose | Data | Target region / status | Necessary? | Action |
-| --- | --- | --- | --- | --- | --- | --- |
-| Yandex Cloud API Gateway | target `brief.anostosio.ru` backend/static gateway | public entry point | IP, headers, request metadata; AI POST body | Russia target | Yes | Keep; verify account region/logs/settings |
-| Yandex Cloud Functions | internal Yandex Cloud | generation backend | questionnaire during request | Russia target | Yes | Keep; attach least-privilege service account |
-| Yandex Cloud AI Studio | `llm.api.cloud.yandex.net` | AI generation | questionnaire + system prompt; generated result | Russia target to verify in account | Yes | Keep; request logging disabled |
-| Yandex Metrica | `mc.yandex.ru` | optional analytics | browser/session analytics after opt-in | Yandex | No | Keep optional; Webvisor OFF |
-| Google Fonts | `fonts.googleapis.com`, `fonts.gstatic.com` | typography | ordinary network request metadata | foreign | No | **Migration blocker: replace with licensed self-hosted WOFF2 before production cutover** |
-| Vercel | `ai-brand-brief.vercel.app` | legacy hosting/API | legacy traffic | foreign | No after cutover | Keep only until migration verified; then redirect/retire |
-| Groq | `api.groq.com` | legacy AI | legacy questionnaire AI payload | foreign | No after cutover | Remove from production route and credentials |
-| Google Search Console verification | static verification file | ownership verification | no runtime API call from file | n/a | Optional | May keep |
-| GitHub | source/CI | development | repository/CI data, not visitor brief flow | foreign developer service | Yes for development | Keep outside visitor processing path |
-| Anostosio portfolio | `anostosio.ru` | outbound portfolio link | request only after click | separate site | Optional | Keep with `noreferrer` |
+| Service | Purpose | Questionnaire content | Required? | Target action |
+| --- | --- | --- | --- | --- |
+| SourceCraft Sites | static page delivery | no | yes for target hosting | verify live host/settings |
+| Yandex Metrica | optional analytics | must not be intentionally sent | no | consent-gated, Webvisor off |
+| Google Fonts | typography | no | no | removed from target runtime |
+| Groq | legacy AI | legacy only | no | absent from target runtime |
+| Yandex Cloud AI Studio | abandoned paid migration option | no in target | no | absent from target runtime |
+| GitHub | source/CI | no visitor questionnaire path | development only | keep |
+| Anostosio portfolio | outbound link | no | optional | request occurs only after click |
 
-## Cross-border transfer status
+## Cross-border status of questionnaire content
 
-The **target AI path intentionally contains no foreign AI recipient**. Therefore a cross-border checklist is not part of the target AI flow.
+The target architecture has **no recipient of questionnaire content outside the browser**. Therefore the earlier Groq cross-border AI flow is eliminated rather than papered over with a checkbox.
 
-If any foreign provider is reintroduced for user questionnaire processing (including as fallback, experiment, observability proxy, model gateway or backup), stop deployment and perform a new localization/trans-border assessment **before enabling it**. Do not rely on a consent checkbox or on “Russian database first” as an automatic solution.
+If a remote model, form endpoint, error collector, observability SDK, proxy or backup service is later added and receives questionnaire content, stop and perform a new localization/trans-border review before enabling it.
 
 ## Production verification gates
 
-- [ ] Russia region confirmed in the actual Yandex Cloud account for all target resources handling questionnaire requests.
-- [ ] `brief.anostosio.ru` resolves directly to the Russian target path.
-- [ ] No questionnaire request reaches Vercel or Groq in production.
-- [ ] AI request logging control verified in live request/settings.
-- [ ] Platform-log retention/access documented.
-- [ ] Metrica network is silent before consent.
-- [ ] Webvisor absent from network/CSP/dashboard.
-- [ ] Google Fonts removed and replaced by licensed self-hosted assets.
-- [ ] Operator details completed in privacy pages.
-- [ ] Applicable Roskomnadzor actions completed by the actual operator.
+- [ ] SourceCraft Free deployment live over HTTPS.
+- [ ] Final production URL recorded.
+- [ ] Build action produces no network request containing questionnaire text.
+- [ ] No Groq/YandexGPT/remote model request occurs.
+- [ ] No Google Fonts request occurs.
+- [ ] Metrica is silent before consent.
+- [ ] Webvisor absent from code/network/dashboard.
+- [ ] Operator/contact information completed.
+- [ ] Applicable Roskomnadzor actions reviewed/completed.
+- [ ] Final privacy notice reconciled with the live host and analytics settings.
