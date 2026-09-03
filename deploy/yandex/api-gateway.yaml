@@ -1,0 +1,99 @@
+openapi: 3.0.0
+info:
+  title: Brand Brief Studio
+  version: 2.0.0
+
+# Replace all <...> placeholders before creating the gateway.
+# The gateway service account needs only the permissions required to read
+# the static bucket and invoke the private generation function.
+x-yc-apigateway:
+  serviceAccountId: <GATEWAY_SERVICE_ACCOUNT_ID>
+  ignoreTrailingSlashes: false
+
+paths:
+  /api/generate:
+    post:
+      operationId: generateBrandBrief
+      responses:
+        '200':
+          description: Structured Brand Brief Studio generation
+        '400':
+          description: Invalid request
+        '429':
+          description: Rate limited
+        '500':
+          description: Generation failed
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: <GENERATION_FUNCTION_ID>
+        tag: $latest
+        service_account_id: <GATEWAY_SERVICE_ACCOUNT_ID>
+        payload_format_version: '2.0'
+
+  /:
+    get:
+      operationId: home
+      responses:
+        '200': { description: English application }
+      x-yc-apigateway-integration:
+        type: object_storage
+        bucket: <STATIC_BUCKET_NAME>
+        object: index.html
+        service_account_id: <GATEWAY_SERVICE_ACCOUNT_ID>
+
+  /ru/:
+    get:
+      operationId: homeRu
+      responses:
+        '200': { description: Russian application }
+      x-yc-apigateway-integration:
+        type: object_storage
+        bucket: <STATIC_BUCKET_NAME>
+        object: ru/index.html
+        service_account_id: <GATEWAY_SERVICE_ACCOUNT_ID>
+
+  /privacy/:
+    get:
+      operationId: privacy
+      responses:
+        '200': { description: English privacy page }
+      x-yc-apigateway-integration:
+        type: object_storage
+        bucket: <STATIC_BUCKET_NAME>
+        object: privacy/index.html
+        service_account_id: <GATEWAY_SERVICE_ACCOUNT_ID>
+
+  /ru/privacy/:
+    get:
+      operationId: privacyRu
+      responses:
+        '200': { description: Russian privacy page }
+      x-yc-apigateway-integration:
+        type: object_storage
+        bucket: <STATIC_BUCKET_NAME>
+        object: ru/privacy/index.html
+        service_account_id: <GATEWAY_SERVICE_ACCOUNT_ID>
+
+  /{proxy+}:
+    get:
+      operationId: staticAsset
+      parameters:
+        - name: proxy
+          in: path
+          required: false
+          explode: false
+          style: simple
+          schema:
+            type: string
+            default: '-'
+      responses:
+        '200': { description: Static asset }
+        '404': { description: Not found }
+      x-yc-apigateway-integration:
+        type: object_storage
+        bucket: <STATIC_BUCKET_NAME>
+        object: '{proxy}'
+        error_object:
+          object: 404.html
+          statusCode: 404
+        service_account_id: <GATEWAY_SERVICE_ACCOUNT_ID>
