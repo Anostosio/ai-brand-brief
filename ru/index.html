@@ -144,7 +144,12 @@
     </section>
   </main>
 
-  <footer><p>Концепция продукта, UX/UI и методология бренда — Anostosio°</p><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Портфолио ↗</a></footer>
+  <footer><p>Концепция продукта, UX/UI и методология бренда — Anostosio°</p><div class="footer-actions"><button type="button" class="privacy-button" id="analyticsSettings">Настройки аналитики</button><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Портфолио ↗</a></div></footer>
+  <aside class="consent-banner" id="analyticsConsent" aria-labelledby="analyticsConsentTitle" hidden>
+    <div><strong id="analyticsConsentTitle">Помочь улучшить Brand Brief Studio?</strong><p>С вашего разрешения Яндекс Метрика измерит посещения и использование интерфейса, включая Вебвизор. Не вводите конфиденциальные данные клиентов.</p></div>
+    <div class="consent-actions"><button type="button" class="consent-secondary" id="analyticsDecline">Не сейчас</button><button type="button" class="consent-primary" id="analyticsAccept">Разрешить аналитику</button></div>
+  </aside>
   <script type="module" src="../app.js"></script>
+  <script type="module" src="../analytics.js"></script>
 </body>
 </html>

@@ -35,6 +35,17 @@ a { color: inherit; }
 .language-switch a { color: var(--muted); }
 .language-switch .is-active { background: var(--accent); color: #fff; }
 .pill { border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; font-size: 12px; color: var(--muted); background: rgba(255,255,255,.45); }
+.footer-actions { display: flex; align-items: center; gap: 18px; }
+.privacy-button { border: 0; padding: 0; background: transparent; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.privacy-button:hover { color: var(--accent); }
+.consent-banner { position: fixed; z-index: 30; left: 50%; bottom: 22px; transform: translateX(-50%); width: min(760px, calc(100% - 32px)); display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; padding: 20px 22px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); box-shadow: 0 24px 70px rgba(33,19,17,.18); }
+.consent-banner strong { display: block; margin-bottom: 5px; }
+.consent-banner p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.consent-actions { display: flex; gap: 8px; }
+.consent-primary, .consent-secondary { border-radius: 10px; padding: 10px 13px; cursor: pointer; white-space: nowrap; font-weight: 700; font-size: 12px; }
+.consent-primary { border: 1px solid var(--accent); background: var(--accent); color: #fff; }
+.consent-secondary { border: 1px solid var(--line); background: transparent; color: var(--muted); }
+.consent-primary:focus-visible, .consent-secondary:focus-visible, .privacy-button:focus-visible { outline: 3px solid rgba(131,28,24,.22); outline-offset: 3px; }
 
 main { width: min(1360px, calc(100% - 48px)); margin: 0 auto; }
 .hero { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(230px, .5fr); gap: 64px; align-items: end; padding: 88px 0 70px; }
@@ -172,6 +183,9 @@ footer a { text-decoration: none; color: var(--accent); }
   .completion > div { align-items: flex-start; flex-direction: column; gap: 4px; }
   .readiness ul, .alternative-grid { grid-template-columns: 1fr; }
   footer { align-items: flex-start; gap: 10px; flex-direction: column; }
+  .footer-actions { width: 100%; justify-content: space-between; }
+  .consent-banner { grid-template-columns: 1fr; bottom: 12px; }
+  .consent-actions button { flex: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -181,7 +195,7 @@ footer a { text-decoration: none; color: var(--accent); }
 @media print {
   @page { size: A4; margin: 16mm 15mm; }
   body { background: #fff; }
-  .site-header, .hero, .form-panel, footer, .result-actions, .history-select, .generation-notice { display: none !important; }
+  .site-header, .hero, .form-panel, footer, .result-actions, .history-select, .generation-notice, .consent-banner { display: none !important; }
   main, .workspace { width: 100%; display: block; padding: 0; margin: 0; }
   .result-panel { position: static; min-height: 0; border: 0; box-shadow: none; padding: 0; }
   .result-heading, .result-toolbar { display: none !important; }
