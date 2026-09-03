@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://ai-brand-brief.vercel.app/sitemap.xml
+Sitemap: https://brief.anostosio.ru/sitemap.xml
