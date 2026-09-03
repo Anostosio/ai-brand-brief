@@ -4,6 +4,8 @@ A bilingual, AI-assisted workspace for turning real project context into an edit
 
 ![Brand Brief Studio interface](assets/ai-brand-brief-preview.webp)
 
+![Evidence statuses and alternative strategic directions in v1.2](assets/ai-brand-brief-v12-result.jpg)
+
 **Live product:** https://ai-brand-brief.vercel.app/
 
 **Russian version:** https://ai-brand-brief.vercel.app/ru/
