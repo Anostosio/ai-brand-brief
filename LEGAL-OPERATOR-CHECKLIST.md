@@ -1,233 +1,243 @@
 # Brand Brief Studio — Legal / Operator Checklist (Russia)
 
-Status: **owner-action checklist for the target Russian architecture**  
+Status: **owner-action checklist for the zero-cost local-only target**  
 Reviewed: **2026-09-03**
 
-This file separates changes that can be implemented in code from obligations that depend on the real personal-data operator. It is not a certificate of compliance and must not contain invented legal details.
+This checklist separates code changes from obligations that depend on the real personal-data operator and live infrastructure. It is not a certificate of compliance and must not contain invented legal details.
 
 ## 0. Operator identity — blocking item
 
-**OWNER ACTION — REQUIRED BEFORE PUBLIC CUTOVER**
+**OWNER ACTION — REQUIRED BEFORE FINAL PUBLIC NOTICE**
 
 Complete and verify:
 
 - [ ] Full legal name / actual legal status of the operator.
-- [ ] Address/details required for the operator’s notices and internal documents.
+- [ ] Address/details required in the operator’s notices/documents, if applicable.
 - [ ] Contact channel for personal-data requests.
 - [ ] Responsible person/process for personal-data matters, if applicable.
 - [ ] Do not insert fictitious IP/INN/OGRN/self-employed status or other requisites.
 
-Repository placeholders in the privacy pages must remain obvious TODOs until this is supplied.
+Privacy-page placeholders must remain obvious TODOs until real information is supplied.
 
-## 1. Notification of personal-data processing
+## 1. What changed legally with local-only generation
+
+The target questionnaire path is now:
+
+```text
+browser questionnaire -> browser-local rules engine -> browser render/localStorage/export
+```
+
+There is no Brand Brief Studio application backend, database or remote AI recipient for questionnaire contents.
+
+This materially reduces the personal-data processing surface compared with the legacy `browser -> Vercel -> Groq` architecture. It does **not** justify saying that the site performs no personal-data processing at all, because:
+
+- static hosting receives ordinary technical request metadata such as IP address/headers/timestamps;
+- optional Yandex Metrica processes analytics data after opt-in;
+- operator obligations depend on the actual purposes, data and live provider configuration.
+
+## 2. Notification of personal-data processing — review still required
 
 **OWNER ACTION**
 
-Before launch, determine whether the operator must submit/update the notification under Article 22 of Federal Law No. 152-FZ. For a public automated web service, do not assume an exemption without documenting its exact statutory basis.
+Determine whether the actual operator must submit or update the notification under Article 22 of Federal Law No. 152-FZ. Do not assume that a static/local-only site is automatically exempt.
 
-The notification should reflect the real target system, including as applicable:
+The review should reflect what the live site actually processes, including where applicable:
 
-- purposes of processing;
-- categories of personal data and data subjects actually processed;
-- processing actions;
-- legal basis;
-- Russian database / infrastructure information required in the notification form;
-- security measures;
-- processors/persons acting on the operator’s instructions where applicable;
+- ordinary hosting/network identifiers;
+- analytics identifiers/events after consent;
+- purposes and legal bases;
+- categories of subjects/data actually involved;
+- providers/persons processing data on the operator's instructions, if applicable;
+- security measures and infrastructure information requested by the current Roskomnadzor form;
 - start/termination conditions.
 
-Official starting points:
+Primary sources:
 
 - Federal Law No. 152-FZ, Article 22: https://www.consultant.ru/document/cons_doc_LAW_61801/d996966e22e1320c9de1ab82d9f6be12c3d9d765/
 - Roskomnadzor Personal Data portal: https://pd.rkn.gov.ru/
 
-**CODE**
+## 3. Localization under Article 18(5)
 
-- [x] Target architecture documented in `PRIVACY-DATA-MAP.md`.
-- [ ] Replace migration placeholders only after owner details are supplied.
+The target architecture intentionally avoids collecting questionnaire contents into an operator-controlled application database at all: the questionnaire remains in the user's browser.
 
-## 2. Localization under Article 18(5)
+Before final cutover:
 
-**OWNER + ARCHITECTURE**
-
-The target is designed so the public site/API/AI request path is hosted in the Russian Yandex Cloud contour rather than `browser -> Vercel -> Groq`.
-
-Before declaring migration complete:
-
-- [ ] Confirm the actual production resources handling questionnaire requests are in the Russian region/contour.
-- [ ] Confirm DNS and API Gateway route do not proxy AI-generation requests through Vercel or another foreign backend.
-- [ ] Confirm no hidden telemetry/model gateway sends questionnaire content abroad.
-- [ ] Verify platform logging and copies/backups relevant to collected personal data.
+- [ ] Verify that no hidden form endpoint, telemetry SDK, error collector or remote AI receives questionnaire fields.
+- [ ] Record the actual static-host provider and infrastructure information available to the operator.
+- [ ] Review Article 18(5) against the actual technical-data/analytics flows rather than claiming that browser Local Storage itself is an operator-controlled Russian database.
+- [ ] Do not describe localStorage as a statutory localization mechanism.
 
 Primary law:
 
 - Federal Law No. 152-FZ, Article 18(5): https://www.consultant.ru/document/cons_doc_LAW_61801/cbf4e15b7c330f9372e876cdf2bc928bad7950ef/
 
-Useful 2025 MinDigital explanation (informational, not itself a normative act):
+Informational 2025 MinDigital explanation:
 
 - Letter No. П25-44929 dated 12 May 2025: https://www.consultant.ru/document/cons_doc_LAW_511584/
 
-## 3. Cross-border transfers
+## 4. Cross-border transfers
 
-**TARGET ARCHITECTURE: NO FOREIGN AI RECIPIENT**
+**QUESTIONNAIRE TARGET: NO REMOTE RECIPIENT**
 
-No separate AI cross-border checklist is required for the planned Russian Yandex AI Studio path.
+The local-only target eliminates the previous foreign AI transfer of questionnaire content.
 
-However, **OWNER + ENGINEERING MUST STOP BEFORE RELEASE** if any foreign recipient is reintroduced, including:
+A separate Article 12 assessment becomes necessary again **before release** if questionnaire/free-text content is later sent to any remote recipient, including:
 
-- foreign AI/model API;
-- foreign fallback model;
-- proxy/model gateway;
-- external error/observability service receiving questionnaire payloads;
-- foreign database/cache;
-- foreign form/session-replay tool.
+- AI/model API;
+- form endpoint;
+- error/observability collector;
+- analytics custom event containing form values;
+- remote backup/sync;
+- session-replay/form-recording tool;
+- proxy or remote fallback.
 
-Then perform a fresh Article 12 analysis and, if applicable, the separate Roskomnadzor trans-border notification **before** the transfer begins. “Russian layer first” and a checkbox do not automatically solve Article 12.
+Do not assume a consent checkbox automatically solves localization or cross-border requirements.
 
 Primary law:
 
 - Federal Law No. 152-FZ, Article 12: https://www.consultant.ru/document/cons_doc_LAW_61801/e4ebbe1780de623c7cf32a59ca82a7bb523a25dd/
 
-## 4. Public policy / information to data subjects
+## 5. Public privacy information
 
 **CODE + OWNER ACTION**
 
-Code now includes Brand Brief Studio-specific migration-draft privacy pages covering:
+Migration-draft EN/RU privacy pages currently describe:
 
-- browser-local drafts/history;
-- AI generation server processing;
-- target AI provider;
-- Yandex Metrica;
-- IP / request metadata / rate limiting;
-- retention limits that are actually known;
+- browser-local questionnaire processing;
+- Local Storage draft/history;
+- static-host technical metadata;
+- optional Yandex Metrica;
+- Webvisor disabled;
 - deletion/analytics choices;
 - operator/contact placeholders.
 
-Before public cutover:
+Before final publication:
 
 - [ ] Insert real operator/contact information.
-- [ ] Confirm every retention statement against actual cloud settings.
-- [ ] Remove migration-draft warning only after all gates are satisfied.
-- [ ] Make the policy readily accessible from all pages where personal data may be collected.
+- [ ] Replace SourceCraft/live-host TODOs with verified facts.
+- [ ] Verify analytics statements against the Metrica dashboard.
+- [ ] Remove the migration-draft warning only after live verification.
+- [ ] Keep the privacy page readily accessible from the product.
 
-Article 18.1 public policy requirement:
+Article 18.1:
 
 - https://www.consultant.ru/document/cons_doc_LAW_61801/eeeebe22bf738fd65bb66b95cc278911ae2525ee/
 
-## 5. Legal basis / consent model
+## 6. Legal basis and consent
 
 **OWNER ACTION**
 
-Do not create a consent checkbox merely because the form contains data.
+Document a legal basis for each real processing purpose under Article 6.
 
-For each actual purpose, document the applicable legal basis under Article 6. If consent is relied on, it must satisfy the current Article 9 requirements and be separately presented/provable where required.
+The questionnaire itself is designed to remain on the user's device. Optional analytics is a separate purpose and is already presented as a separate opt-in choice.
+
+If consent is relied on for a processing purpose, it must satisfy current Article 9 requirements; do not hide consent inside unrelated terms or rely on one blanket checkbox for every possible flow.
 
 - Article 6: https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/
 - Article 9: https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/
 
-The product UX currently uses a clear notice and prohibits third-party/sensitive/secrets input rather than claiming that a blanket checkbox legalizes all data flows.
+## 7. Third-party personal data
 
-## 6. Third-party personal data
+Because the questionnaire no longer leaves the user's browser, third-party content entered there is not intentionally transferred to Brand Brief Studio infrastructure.
 
-**CODE + OWNER POLICY**
+Still:
 
-- [x] Generate notice says not to enter personal data of third parties.
-- [x] Special-category personal data, credentials/secrets and confidential client information are also discouraged.
-- [ ] Decide whether additional validation/redaction is warranted after observing real use.
-- [ ] Do not represent the user as able to consent on behalf of unrelated third parties without a valid basis.
+- [ ] do not encourage users to enter passwords, API keys or unnecessary sensitive information;
+- [ ] do not claim the user can consent on behalf of unrelated third parties;
+- [ ] if any future sync/server/AI feature is introduced, reassess third-party personal-data handling before release.
 
-## 7. Yandex Cloud / processor relationship
+## 8. SourceCraft Sites / static-host relationship
 
 **OWNER ACTION**
 
-Before launch, collect and retain the current contractual and provider materials relevant to the chosen Yandex Cloud services:
+Before production cutover, retain current materials relevant to the actual SourceCraft Sites deployment:
 
-- [ ] account/contract terms;
-- [ ] roles of operator/processor as applicable;
-- [ ] region/data-location configuration;
-- [ ] access-control configuration;
-- [ ] logging/diagnostic configuration;
-- [ ] AI request data-logging setting;
-- [ ] list of relevant subprocessors/third parties if applicable to the service arrangement;
-- [ ] deletion/termination procedures.
+- [ ] SourceCraft organization/repository and final public URL;
+- [ ] current Free-plan/hosting terms;
+- [ ] information available about infrastructure logs/access/retention;
+- [ ] account access controls and MFA/recovery settings;
+- [ ] confirmation that no paid/Pro resource was enabled for this project unless the owner explicitly chooses it later.
 
-Do not infer these solely from application code.
+Do not infer infrastructure facts solely from repository code.
 
-## 8. Yandex Metrica
+## 9. Yandex Metrica
 
 **CODE**
 
 - [x] Tag loads only after stored `accepted` choice.
 - [x] Explicit decline supported.
-- [x] Persistent settings control supported.
+- [x] Analytics settings can be reopened.
 - [x] Webvisor disabled in code.
 - [x] Withdrawal disables further counter activity and attempts browser-side cleanup.
+- [x] No custom questionnaire values are intentionally sent by Brand Brief Studio code.
 
 **OWNER ACTION**
 
 - [ ] Check Webvisor / Session Replay is also disabled in the Metrica dashboard.
-- [ ] Check advanced/contact-data tracking features are off unless separately justified and documented.
-- [ ] Record actual analytics purposes and provider terms in operator documentation.
-- [ ] Live-test that no Metrica network request occurs before consent.
+- [ ] Check advanced/contact-data tracking features are off unless separately justified/documented.
+- [ ] Record actual analytics purpose and provider terms.
+- [ ] Live-test that no Metrica request occurs before consent.
+- [ ] Live-test that questionnaire/free-text values are not present in analytics requests/events.
 
-## 9. Incident response / unlawful disclosure
+## 10. Incident response
 
-**OWNER ACTION — PREPARE BEFORE LAUNCH**
+**OWNER ACTION — PREPARE BEFORE FINAL LAUNCH**
 
-Create an incident process that can meet the statutory notification windows when an incident falls within Article 21 requirements:
+A local-only questionnaire reduces the chance of a central brief database breach, but incidents are still possible through hosting/source compromise, analytics misconfiguration or accidental remote transmission.
 
-- [ ] identify and contain incident;
-- [ ] preserve evidence and determine affected data/subjects;
-- [ ] initial Roskomnadzor notice within **24 hours** where the statutory trigger is met;
-- [ ] internal investigation results / follow-up within **72 hours** where required;
-- [ ] maintain incident register, responsible contacts and decision record;
-- [ ] coordinate provider incident information.
+Create a process capable of meeting Article 21 requirements where their statutory trigger is met:
+
+- [ ] identify and contain the incident;
+- [ ] preserve evidence and identify affected data/subjects;
+- [ ] initial Roskomnadzor notice within **24 hours** where required;
+- [ ] investigation/follow-up within **72 hours** where required;
+- [ ] maintain an incident register and responsible contacts.
 
 Primary law:
 
 - Federal Law No. 152-FZ, Article 21: https://www.consultant.ru/document/cons_doc_LAW_61801/d3fe43a7c415353b17faab255bc0de92bea127da/
 
-## 10. Subject requests and deletion
-
-**OWNER ACTION**
-
-Document the operational workflow for requests to access, clarify, block, stop or delete personal data where required by law and the chosen legal basis.
+## 11. Subject requests and deletion
 
 **CODE**
 
-The application already supports:
+The application supports:
 
 - local draft/history deletion in the current browser;
-- optional analytics withdrawal;
-- local (non-AI) draft mode.
+- optional analytics withdrawal.
 
-These product controls do not replace the operator’s statutory request process.
+These controls cover product-local storage only. They do not replace an operator process for requests relating to hosting/analytics data where statutory rights apply.
 
-## 11. Security / access
+**OWNER ACTION**
+
+Document how requests to access, clarify, stop, block or delete data will be handled, using the final operator contact.
+
+## 12. Security / access
 
 **ENGINEERING + OWNER**
 
-- [ ] Dedicated least-privilege service account for AI invocation.
-- [ ] No AI API key in frontend or repository.
-- [ ] Function IAM token supplied by runtime context.
-- [ ] Restrict cloud console/IAM access to people who need it.
-- [ ] Enable MFA and secure account recovery for cloud/GitHub/admin accounts.
-- [ ] Review platform logs and prohibit questionnaire-body logging.
-- [ ] Keep secrets out of Git history and exported briefs.
-- [ ] Review dependencies and runtime versions periodically.
+- [x] No AI/API secret is required for the target app.
+- [x] No server database is required.
+- [x] Google Fonts removed from target runtime.
+- [x] Webvisor disabled in code.
+- [ ] Keep GitHub/SourceCraft/analytics accounts protected with MFA and secure recovery.
+- [ ] Restrict repository and analytics access to people who need it.
+- [ ] Review SourceCraft and Metrica account settings before cutover.
+- [ ] Keep questionnaire content out of future telemetry/events.
 
-## 12. Pre-merge / pre-cutover gate
+## 13. Pre-merge / pre-cutover gate
 
-Do **not** merge the migration PR into production merely because CI is green.
+CI success alone is not enough to retire the legacy site.
 
-Required first:
+Required before production cutover:
 
-- [ ] operator details available;
-- [ ] relevant Roskomnadzor notification/action completed or documented as not applicable with legal basis;
-- [ ] Russian Yandex Cloud resources provisioned and tested;
-- [ ] AI quality/structured-output tests pass against live Yandex model;
-- [ ] production logs reviewed;
-- [ ] Metrica dashboard reviewed;
-- [ ] Google Fonts replaced by licensed self-hosted font assets;
-- [ ] live network trace confirms no Vercel/Groq/Google Fonts/Webvisor dependency in final user-data path;
-- [ ] privacy pages changed from migration draft to final verified wording.
+- [ ] SourceCraft Free site is live and tested over HTTPS;
+- [ ] DevTools Network proves Build causes no questionnaire HTTP request;
+- [ ] no Groq/YandexGPT/Google Fonts/Webvisor request occurs in the target path;
+- [ ] Metrica is silent before consent;
+- [ ] actual SourceCraft URL and host facts are recorded;
+- [ ] canonical/sitemap/robots point to the actual production URL;
+- [ ] real operator/contact information is available;
+- [ ] relevant Roskomnadzor action is completed or documented as not applicable with a defensible basis;
+- [ ] final privacy wording is reconciled with live hosting/analytics settings;
+- [ ] only then redirect or retire the legacy Vercel/Groq production deployment.
