@@ -1,142 +1,158 @@
 # Brand Brief Studio
 
-A bilingual, AI-assisted workspace for turning real project context into an editable brand brief—without presenting model assumptions as market research.
+A bilingual, evidence-aware AI workspace for turning real project context into an editable working brand brief without presenting model assumptions as research.
 
-![Brand Brief Studio interface](assets/ai-brand-brief-preview.webp)
+**Brand:** Anostosio° / Product Lab  
+**Migration target:** `https://brief.anostosio.ru/`  
+**Status of this branch:** privacy/data-architecture migration — **not yet production cutover**
 
-![Evidence statuses and alternative strategic directions in v1.2](assets/ai-brand-brief-v12-result.jpg)
-
-**Live product:** https://ai-brand-brief.vercel.app/
-
-**Russian version:** https://ai-brand-brief.vercel.app/ru/
-
-## Portfolio snapshot
-
-**Role:** product concept · brand methodology · UX/UI · front-end · serverless integration · testing · deployment
-
-**Status:** v1.2 · Trust & Quality
-
-**Format:** EN / RU · responsive web application
-
-**Core idea:** help a designer or client team move from fragmented inputs to a reviewable working document
-
-## The problem
-
-Brand projects often start with scattered notes, visual preferences and unverified assumptions. A short AI prompt can make that material sound polished, but it can also hide what is missing, invent confidence and produce a document that is difficult to use in real work.
-
-## The solution
-
-Brand Brief Studio asks for the context that a serious first brief needs:
-
-- business offer and project challenge
-- primary goal and market
-- audience, needs and barriers
-- competitors and alternatives
-- defensible difference and proof
-- personality, deliverables and constraints
-
-It turns those inputs into 13 editable sections, including positioning, value proposition, messaging, visual direction, risks and ordered next steps. Every section also carries a visible evidence status—grounded, mixed, hypothesis or needs validation—plus the questionnaire fields that support it.
-
-Before generation, a local readiness diagnostic scores five dimensions: foundation, audience tension, competitive difference, evidence and scope. This improves the input without spending an AI request.
+> The current public Vercel/Groq deployment is legacy until the Russian Yandex Cloud target is provisioned and verified. This branch must not be represented as already deployed, and it must not be merged into production until the cutover checklist is complete.
 
 ## Product flow
 
-```mermaid
-flowchart TD
-  A[Project-type questionnaire] --> B[Local readiness diagnostic]
-  B --> C[Validated server request]
-  C --> D[Groq strict structured output]
-  D --> E[Brief + evidence map + 2 routes]
-  E --> F[Edit · history · import · export]
-  C -. unavailable .-> G[Labelled local fallback]
-```
+The product keeps the existing workflow:
 
-If AI generation is unavailable, the interface preserves the answers and offers two explicit choices: retry or create a clearly labelled local structured draft. It never disguises a template as a successful AI response.
+1. Complete a structured brand questionnaire.
+2. Run a local readiness diagnostic.
+3. Generate a structured AI draft or use an explicitly labelled local fallback.
+4. Review evidence status and alternative strategic routes.
+5. Edit, reopen recent work, copy, export JSON or save PDF.
 
-## Key product decisions
-
-### Evidence-aware output
-
-The prompt forbids invented research, channels, deliverables, sample sizes, market claims and proof. The data contract requires an evidence status, source-field list and uncertainty note for every section. The output also includes a dedicated “Risks and unknowns” section.
+The evidence system distinguishes:
 
 | Status | Meaning |
 | --- | --- |
 | Grounded | Directly supported by supplied fields |
 | Mixed | Supplied facts plus professional interpretation |
-| Hypothesis | A strategic or creative proposal to test |
+| Hypothesis | A proposal that needs testing |
 | Needs validation | Evidence is missing or contradictory |
 
-### Project-aware generation
+## Target privacy architecture
 
-The questionnaire supports new brands, rebrands, campaigns, personal brands, digital products and packaging. The selected type changes the guidance and becomes part of the generation context.
+```mermaid
+flowchart TD
+  A[Browser questionnaire] --> B[Local draft / readiness]
+  B -->|Generate AI| C[Yandex API Gateway — Russia]
+  C --> D[Yandex Cloud Function — Russia]
+  D --> E[Yandex Cloud AI Studio / YandexGPT]
+  E --> D
+  D --> F[Validated brief + evidence map + 2 routes]
+  F --> G[Browser edit / local history / export]
+  B -. no AI .-> H[Labelled local fallback]
+  I[Yandex Metrica] -. only after opt-in .-> A
+```
 
-### Alternative routes
+### Local browser data
 
-Each generation includes two deliberately different strategic routes with positioning, tone, visual principle, advantage and risk. They are clearly presented as proposals rather than research conclusions.
+- questionnaire draft is stored in Local Storage;
+- up to eight recent briefs per language are stored locally;
+- no user account is required;
+- the target architecture has no application database of briefs;
+- the UI includes **Delete local data** for product draft/history storage.
 
-### Schema-constrained generation
+### Server / AI processing
 
-The server uses Structured Outputs with a strict JSON Schema, then validates the response again before returning it to the browser.
+AI generation sends the validated questionnaire only when the user explicitly starts generation.
 
-### Honest failure states
+Target backend:
 
-API errors, timeouts and unavailable credentials produce a recoverable interface state. The user’s local draft remains intact and the fallback is always labelled as non-AI.
+- Yandex API Gateway;
+- Yandex Cloud Functions, Node.js 22;
+- Yandex Cloud AI Studio;
+- explicit structured output schema;
+- server-side output validation;
+- AI request logging requested off via `x-data-logging-enabled: false`;
+- function service-account IAM token supplied by runtime context;
+- no permanent AI API key in browser/repository.
 
-### Local-first continuity
+### Technical identifiers
 
-Questionnaire drafts and the eight most recent briefs are stored in the current browser. No account is required, and recent work can be reopened and edited.
+The network layer necessarily sees technical request metadata including client IP. The application converts the client address into an HMAC-derived in-memory rate-limit key and does not intentionally put raw IP, questionnaire text or generated output into Brand Brief Studio application logs.
 
-Versioned JSON export and import make projects portable without introducing accounts or a database.
+This does **not** mean platform-level logs contain no request metadata; their actual production retention/access must be verified before final privacy wording is published.
 
-### Client-ready exports
+### Analytics
 
-The product supports formatted clipboard output, a versioned machine-readable JSON format and a print-optimized A4 document with a cover, readiness score, evidence labels and alternative directions.
+Yandex Metrica remains optional:
 
-## Reliability and safety
+- tag loads only after explicit opt-in;
+- decline is supported;
+- preference can be reopened later;
+- **Webvisor / Session Replay is disabled**;
+- withdrawal disables future counter activity and performs best-effort cleanup of accessible first-party Metrica browser identifiers.
 
-- API credentials remain server-side
-- required-field and length validation in browser and server
-- request body size limit
-- request timeout, per-IP guard and per-instance global quota protection
-- strict schema-constrained model output
-- output validation before rendering
-- one automatic retry if a model response fails local quality validation
-- request ID, duration and outcome logging without questionnaire content
-- explicit warning against submitting confidential client information
-- no HTML injection from generated content
-- security headers and restrictive Content Security Policy
-- reduced-motion and keyboard-focus support
-- automated core tests and GitHub Actions checks
+Dashboard-side Metrica settings still require a production review.
 
-The in-memory guards are intentionally lightweight for this portfolio deployment. A production multi-instance service should use a shared rate-limit store or the hosting provider’s firewall.
+## Legacy path and fail-closed behavior
 
-Questionnaire answers submitted for AI generation are processed by Groq. The public demo should be used with fictional or non-confidential project information.
+The previous AI flow was:
 
-## Stack
+```text
+browser -> Vercel function -> Groq
+```
 
-- semantic HTML5
-- responsive CSS and print styles
-- vanilla JavaScript ES modules
-- Local Storage, Clipboard and Blob APIs
-- Vercel serverless function
-- Groq Chat Completions API with Structured Outputs
-- Node.js built-in test runner
-- GitHub Actions
-- Vercel
+That is not the target public personal-data architecture.
 
-## Search and brand surface
+In this migration branch, the default Vercel `api/generate.js` handler intentionally returns `503 MIGRATION_REQUIRED`. The actual generation adapter is `functions/generate.js` for Yandex Cloud Functions.
 
-The deployment includes a custom `B°` favicon, web app manifest, canonical URLs, EN/RU hreflang links, Open Graph metadata, `robots.txt` and a bilingual XML sitemap. The site is ready for ownership verification in Google Search Console and for a Yandex Metrica tag once account-specific identifiers are issued.
+This prevents an accidental redeploy from silently recreating the foreign AI path after the migration code is merged.
 
-Google Search Console ownership is verified through the root HTML file. Yandex Metrica counter `112263821` loads only after explicit visitor consent; the bilingual banner also provides a persistent analytics-settings control.
+## Files
 
-## Quality checks
+```text
+api/generate.js                    generation core + fail-closed legacy handler
+functions/generate.js              Yandex Cloud Functions HTTP adapter
+lib/brief-core.js                  validation, readiness, trust and local fallback
+app.js                             browser workflow and local history
+analytics.js                       consent-gated Metrica, Webvisor disabled
+privacy-controls.js                delete local draft/history data
+index.html                         English interface
+ru/index.html                      Russian interface
+privacy/index.html                 English migration-draft privacy page
+ru/privacy/index.html              Russian migration-draft privacy page
+PRIVACY-DATA-MAP.md                actual/target data-flow inventory
+LEGAL-OPERATOR-CHECKLIST.md        code vs operator/Roskomnadzor actions
+SECURITY-PRIVACY-NOTES.md          privacy/security engineering invariants
+deploy/yandex/                     target deployment template and runbook
+test/                              product/provider/privacy regression tests
+```
 
-The dependency-free test suite covers sanitization, required inputs, readiness scoring, local fallback generation, evidence metadata, alternatives, provider parsing, upstream error classification and the bilingual HTML interaction contract.
+## Privacy documentation
 
-## Run locally
+Read these together:
 
-The static interface works with any local web server. AI generation requires a Vercel-compatible serverless environment and the variables from `.env.example`.
+- [`PRIVACY-DATA-MAP.md`](PRIVACY-DATA-MAP.md)
+- [`LEGAL-OPERATOR-CHECKLIST.md`](LEGAL-OPERATOR-CHECKLIST.md)
+- [`SECURITY-PRIVACY-NOTES.md`](SECURITY-PRIVACY-NOTES.md)
+- [`deploy/yandex/README.md`](deploy/yandex/README.md)
+
+They intentionally do **not** claim that the project is compliant merely because code was changed.
+
+Final production publication is blocked until:
+
+- the real personal-data operator/contact is supplied;
+- applicable Roskomnadzor actions are completed/documented;
+- Russian Yandex Cloud resources, region, logging and access are verified;
+- live Yandex model quality and structured output are tested;
+- Metrica dashboard/settings are verified;
+- Google Fonts are replaced by licensed self-hosted WOFF2 assets;
+- a live network trace proves the final path has no Groq/Vercel AI, Google Fonts or Webvisor dependency;
+- migration-draft privacy wording is replaced by verified final wording.
+
+## Fonts migration blocker
+
+Manrope and Unbounded are licensed under SIL Open Font License 1.1 and may be self-hosted subject to the license terms.
+
+The migration branch temporarily retains Google Fonts links so previews do not render with missing font assets. **This must be removed before production cutover.**
+
+Use official upstream distributions only and preserve OFL notices:
+
+- Manrope: https://github.com/google/fonts/tree/main/ofl/manrope
+- Unbounded: https://github.com/google/fonts/tree/main/ofl/unbounded
+
+After local WOFF2 files are added, remove `fonts.googleapis.com` and `fonts.gstatic.com` from HTML and CSP.
+
+## Development
 
 ```bash
 npm install
@@ -144,38 +160,33 @@ npm run check
 npm test
 ```
 
-Environment variables:
+Node.js 22+ is the target runtime.
 
-```text
-GROQ_API_KEY=your_server_side_key_here
-GROQ_MODEL=openai/gpt-oss-20b
-```
+Local-only environment placeholders are documented in `.env.example`. Production Yandex Cloud Functions should use the attached service-account IAM token from the invocation context rather than a stored long-lived AI key.
 
-## Project structure
+## Reliability / safety invariants
 
-```text
-api/generate.js          server-side generation, retry, limits and safe logging
-lib/brief-core.js        shared validation, readiness, trust and fallback logic
-test/                    dependency-free core tests
-.github/workflows/       automated quality checks
-index.html               English interface
-ru/index.html            Russian interface
-app.js                   browser state and interaction layer
-style.css                responsive and print design system
-vercel.json              deployment security headers
-```
+- validation in browser and server core;
+- 24 KB request-body limit;
+- request timeout;
+- pseudonymous per-client in-memory rate limiting;
+- strict output schema and post-generation validation;
+- one retry for invalid structured model output;
+- no questionnaire/output in application log calls;
+- request IDs for diagnostics;
+- local fallback remains clearly labelled as non-AI;
+- no HTML injection from generated text;
+- restrictive deployment security headers required;
+- privacy regression tests;
+- fail-closed legacy AI path.
 
-## What I learned
+## Production deployment
 
-This project connects my branding practice with product-building. The central product decision was to make uncertainty visible instead of polishing it away. A reliable AI product needs good inputs, evidence-aware output, predictable contracts, recoverable errors and a useful workflow before and after generation.
+See [`deploy/yandex/README.md`](deploy/yandex/README.md).
 
-## Related work
-
-**Job Search CRM:** https://job-search-crm-psi.vercel.app/  
-**Portfolio:** https://anostosio.ru/
+The recommended public domain is `brief.anostosio.ru`, served directly from the Russian Yandex Cloud target. Only after this is live and verified should the old `ai-brand-brief.vercel.app` deployment be redirected or retired.
 
 ---
 
-Created by **Anostosio°**
-
+Created by **Anostosio° / Product Lab**  
 Graphic Design · Branding · Advertising · AI-assisted Product Building
