@@ -22,7 +22,8 @@ Yandex Cloud Function — Russia
        ├─ request ID / outcome / duration logs only
        └─ questionnaire
             ↓
-Yandex Cloud AI Studio — Russian production contour
+Yandex Cloud AI Studio — Russia region target
+       ├─ llm.api.cloud.yandex.net/foundationModels/v1/completion
        ├─ x-data-logging-enabled: false
        └─ structured generation
             ↓
@@ -32,6 +33,10 @@ Browser renders and stores recent result locally
 ```
 
 The previous Vercel -> Groq route is **legacy** and must not remain the production AI path after migration.
+
+Yandex Cloud's current region documentation states that user data is stored and available only within the individual region in which the resources reside. The production account/resources still have to be verified as using the Russia region; this repository cannot prove account configuration by itself.
+
+Official region reference: https://yandex.cloud/en/docs/overview/concepts/region
 
 ## Data inventory
 
@@ -82,13 +87,14 @@ This preference is deliberately separate from product draft/history deletion.
 
 ## AI generation
 
-Target provider: **Yandex Cloud AI Studio**.
+Target provider: **Yandex Cloud AI Studio** in the verified Russia-region production account.
 
 Application controls:
 
 - Russian Yandex Cloud Function adapter;
 - service-account IAM token from Cloud Functions context in production;
 - no long-lived AI API key required in repository or frontend;
+- current native text-generation REST endpoint: `https://llm.api.cloud.yandex.net/foundationModels/v1/completion`;
 - `x-data-logging-enabled: false` in AI request;
 - strict generation schema;
 - server-side output validation;
@@ -99,8 +105,10 @@ Current model target: `gpt://<folder_id>/yandexgpt-5.1` (explicit URI should be 
 
 Official references:
 
+- Text generation REST API: https://yandex.cloud/en/docs/ai-studio/text-generation/api-ref/TextGeneration/completion
 - AI Studio request logging control: https://yandex.cloud/en/docs/ai-studio/concepts/resources/data-logging
 - YandexGPT model catalogue: https://yandex.cloud/en/docs/ai-studio/concepts/generation/models
+- Cloud Functions invocation context: https://yandex.cloud/en/docs/functions/lang/nodejs/context
 - Cloud Functions service-account authentication/context: https://yandex.cloud/en/docs/functions/operations/function-sa
 
 ## Rate limiting and IP minimization
@@ -112,7 +120,8 @@ Important limitations:
 - this reduces application-level retention/exposure; it does **not** mean network infrastructure never receives the original IP;
 - HMAC pseudonymization is not the same as legal anonymization;
 - production API Gateway / Cloud Functions request metadata and logging must be checked in the actual account;
-- if infrastructure rate limiting is added later, its data policy and training/telemetry settings must be reviewed before enabling.
+- the application rate limiter is per warm function instance and is not a durable distributed quota;
+- if infrastructure/shared rate limiting is added later, its storage, region, logging and telemetry behavior must be reviewed before enabling.
 
 ## Analytics
 
@@ -132,9 +141,9 @@ Production owner action: verify the Metrica dashboard itself, including Session 
 
 | Service | Domain / surface | Purpose | Data | Target region / status | Necessary? | Action |
 | --- | --- | --- | --- | --- | --- | --- |
-| Yandex Cloud API Gateway | target `brief.anostosio.ru` backend/static gateway | public entry point | IP, headers, request metadata; AI POST body | Russia target | Yes | Keep; verify logs/settings |
+| Yandex Cloud API Gateway | target `brief.anostosio.ru` backend/static gateway | public entry point | IP, headers, request metadata; AI POST body | Russia target | Yes | Keep; verify account region/logs/settings |
 | Yandex Cloud Functions | internal Yandex Cloud | generation backend | questionnaire during request | Russia target | Yes | Keep; attach least-privilege service account |
-| Yandex Cloud AI Studio | `ai.api.cloud.yandex.net` | AI generation | questionnaire + system prompt; generated result | Russian target | Yes | Keep; request logging disabled |
+| Yandex Cloud AI Studio | `llm.api.cloud.yandex.net` | AI generation | questionnaire + system prompt; generated result | Russia target to verify in account | Yes | Keep; request logging disabled |
 | Yandex Metrica | `mc.yandex.ru` | optional analytics | browser/session analytics after opt-in | Yandex | No | Keep optional; Webvisor OFF |
 | Google Fonts | `fonts.googleapis.com`, `fonts.gstatic.com` | typography | ordinary network request metadata | foreign | No | **Migration blocker: replace with licensed self-hosted WOFF2 before production cutover** |
 | Vercel | `ai-brand-brief.vercel.app` | legacy hosting/API | legacy traffic | foreign | No after cutover | Keep only until migration verified; then redirect/retire |
@@ -151,8 +160,8 @@ If any foreign provider is reintroduced for user questionnaire processing (inclu
 
 ## Production verification gates
 
-- [ ] Russian region confirmed for all target resources handling questionnaire requests.
-- [ ] `brief.anostosio.ru` resolves to the Russian target path.
+- [ ] Russia region confirmed in the actual Yandex Cloud account for all target resources handling questionnaire requests.
+- [ ] `brief.anostosio.ru` resolves directly to the Russian target path.
 - [ ] No questionnaire request reaches Vercel or Groq in production.
 - [ ] AI request logging control verified in live request/settings.
 - [ ] Platform-log retention/access documented.
