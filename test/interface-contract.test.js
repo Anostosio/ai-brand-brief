@@ -48,7 +48,7 @@ test('privacy pages use relative assets and back links so subpath hosting cannot
   }
 });
 
-test('search discovery files expose both locales and no longer advertise a server API', async () => {
+test('search discovery files target the live SourceCraft URLs and remain subpath-safe', async () => {
   const [robots, sitemap, manifest, favicon] = await Promise.all([
     readFile(new URL('../robots.txt', import.meta.url), 'utf8'),
     readFile(new URL('../sitemap.xml', import.meta.url), 'utf8'),
@@ -57,9 +57,12 @@ test('search discovery files expose both locales and no longer advertise a serve
   ]);
 
   assert.doesNotMatch(robots, /Disallow:\s*\/api\//);
-  assert.match(sitemap, /<loc>https:\/\/brief\.anostosio\.ru\/<\/loc>/);
-  assert.match(sitemap, /<loc>https:\/\/brief\.anostosio\.ru\/ru\/<\/loc>/);
-  assert.equal(JSON.parse(manifest).icons[0].src, '/favicon.svg');
+  assert.match(sitemap, /<loc>https:\/\/anostosio-product-lab\.sourcecraft\.site\/ai-brand-brief\/<\/loc>/);
+  assert.match(sitemap, /<loc>https:\/\/anostosio-product-lab\.sourcecraft\.site\/ai-brand-brief\/ru\/<\/loc>/);
+  const parsedManifest = JSON.parse(manifest);
+  assert.equal(parsedManifest.start_url, './');
+  assert.equal(parsedManifest.scope, './');
+  assert.equal(parsedManifest.icons[0].src, './favicon.svg');
   assert.match(favicon, /B° — Brand Brief Studio/);
 });
 
