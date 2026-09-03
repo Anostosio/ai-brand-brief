@@ -7,7 +7,7 @@ const GLOBAL_WINDOW_MS = 60 * 60 * 1000;
 const GLOBAL_MAX_REQUESTS = 80;
 const MAX_BODY_BYTES = 24_000;
 const REQUEST_TIMEOUT_MS = 28_000;
-const YANDEX_COMPLETION_URL = 'https://ai.api.cloud.yandex.net/foundationModels/v1/completion';
+const YANDEX_COMPLETION_URL = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion';
 
 const rateBuckets = globalThis.__brandBriefRateBuckets || new Map();
 const globalBucket = globalThis.__brandBriefGlobalBucket || [];
@@ -103,9 +103,9 @@ export function isRateLimited(key, now = Date.now()) {
 }
 
 export function extractText(payload) {
-  const message = payload?.result?.alternatives?.[0]?.message
-    || payload?.alternatives?.[0]?.message
-    || payload?.choices?.[0]?.message;
+  const alternative = payload?.result?.alternatives?.[0] || payload?.alternatives?.[0];
+  if (alternative?.status === 'ALTERNATIVE_STATUS_CONTENT_FILTER') throw new Error('MODEL_REFUSAL');
+  const message = alternative?.message || payload?.choices?.[0]?.message;
   if (message?.refusal) throw new Error('MODEL_REFUSAL');
   if (typeof message?.text === 'string') return message.text.trim();
   return typeof message?.content === 'string' ? message.content.trim() : '';
