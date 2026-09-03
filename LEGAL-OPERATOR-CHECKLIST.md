@@ -5,19 +5,18 @@ Reviewed: **2026-09-03**
 
 This checklist separates code changes from obligations that depend on the real personal-data operator and live infrastructure. It is not a certificate of compliance and must not contain invented legal details.
 
-## 0. Operator identity — blocking item
+## 0. Operator identity
 
-**OWNER ACTION — REQUIRED BEFORE FINAL PUBLIC NOTICE**
+Known and supplied by the owner:
 
-Complete and verify:
-
-- [ ] Full legal name / actual legal status of the operator.
+- [x] Legal status for this product: **individual / физическое лицо**.
+- [x] Public contact channel for privacy and personal-data requests: **Anostosio@yandex.ru**.
+- [ ] Full legal name, if required for a Roskomnadzor filing, formal request handling or another applicable operator document.
 - [ ] Address/details required in the operator’s notices/documents, if applicable.
-- [ ] Contact channel for personal-data requests.
 - [ ] Responsible person/process for personal-data matters, if applicable.
-- [ ] Do not insert fictitious IP/INN/OGRN/self-employed status or other requisites.
+- [x] Do not insert fictitious IP/INN/OGRN/self-employed status or other requisites.
 
-Privacy-page placeholders must remain obvious TODOs until real information is supplied.
+The public Privacy pages identify the operator as the individual owner of Anostosio° / Product Lab and publish the supplied contact email. They do not invent registration details.
 
 ## 1. What changed legally with local-only generation
 
@@ -63,9 +62,10 @@ The target architecture intentionally avoids collecting questionnaire contents i
 Before final cutover:
 
 - [ ] Verify that no hidden form endpoint, telemetry SDK, error collector or remote AI receives questionnaire fields.
-- [ ] Record the actual static-host provider and infrastructure information available to the operator.
+- [x] Record the actual target static-host provider and public project: SourceCraft Sites, `Anostosio Product Lab / ai-brand-brief`, `https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/`.
+- [ ] Record infrastructure/log information available to the operator from current SourceCraft terms/settings.
 - [ ] Review Article 18(5) against the actual technical-data/analytics flows rather than claiming that browser Local Storage itself is an operator-controlled Russian database.
-- [ ] Do not describe localStorage as a statutory localization mechanism.
+- [x] Do not describe localStorage as a statutory localization mechanism.
 
 Primary law:
 
@@ -101,143 +101,69 @@ Primary law:
 
 **CODE + OWNER ACTION**
 
-Migration-draft EN/RU privacy pages currently describe:
+EN/RU privacy pages now describe:
 
+- operator status: individual / физическое лицо;
+- public contact: `Anostosio@yandex.ru`;
 - browser-local questionnaire processing;
 - Local Storage draft/history;
-- static-host technical metadata;
+- SourceCraft static-host technical metadata;
 - optional Yandex Metrica;
-- Webvisor disabled;
-- deletion/analytics choices;
-- operator/contact placeholders.
+- Webvisor disabled in code;
+- deletion/analytics choices.
 
 Before final publication:
 
-- [ ] Insert real operator/contact information.
-- [ ] Replace SourceCraft/live-host TODOs with verified facts.
+- [x] Insert the supplied operator status/contact information without inventing registration details.
+- [x] Replace SourceCraft/live-host placeholders with the known public project and URL.
 - [ ] Verify analytics statements against the Metrica dashboard.
-- [ ] Remove the migration-draft warning only after live verification.
-- [ ] Keep the privacy page readily accessible from the product.
+- [ ] Remove the pre-launch warning only after live network + analytics verification.
+- [x] Keep the privacy page readily accessible from the product.
 
-Article 18.1:
+## 6. Consent and analytics
 
-- https://www.consultant.ru/document/cons_doc_LAW_61801/eeeebe22bf738fd65bb66b95cc278911ae2525ee/
+Current product behaviour:
 
-## 6. Legal basis and consent
+- Metrica is not initialized before an explicit analytics choice;
+- Webvisor is disabled in site code;
+- withdrawing consent disables further counter activity and attempts best-effort cleanup of accessible first-party Metrica identifiers.
 
-**OWNER ACTION**
+Still verify outside the repository:
 
-Document a legal basis for each real processing purpose under Article 6.
+- [ ] Webvisor / Session Replay disabled in the actual Metrica dashboard.
+- [ ] Form analysis/session recording settings do not capture questionnaire content.
+- [ ] Advanced/contact-data collection is disabled unless separately justified and documented.
+- [ ] A no-consent page load sends no Metrica request.
 
-The questionnaire itself is designed to remain on the user's device. Optional analytics is a separate purpose and is already presented as a separate opt-in choice.
+## 7. Live-network release gate
 
-If consent is relied on for a processing purpose, it must satisfy current Article 9 requirements; do not hide consent inside unrelated terms or rely on one blanket checkbox for every possible flow.
+Before retiring the Vercel/Groq deployment, use browser DevTools Network on the SourceCraft version and confirm:
 
-- Article 6: https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/
-- Article 9: https://www.consultant.ru/document/cons_doc_LAW_61801/6c94959bc017ac80140621762d2ac59f6006b08c/
+- [ ] Build/Generate sends no questionnaire/free-text request to a remote API.
+- [ ] No request to `api.groq.com` or another AI API exists.
+- [ ] No Google Fonts request exists.
+- [ ] No Webvisor/session-replay request exists.
+- [ ] Before analytics consent, no Yandex Metrica tag/request is initiated by the application.
+- [ ] After analytics consent, only the intended basic analytics dependencies appear.
 
-## 7. Third-party personal data
+Keep a dated screenshot or short release note as evidence of this check.
 
-Because the questionnaire no longer leaves the user's browser, third-party content entered there is not intentionally transferred to Brand Brief Studio infrastructure.
+## 8. Incident and rights process
 
-Still:
+Even with a small/static product, maintain a minimal owner process:
 
-- [ ] do not encourage users to enter passwords, API keys or unnecessary sensitive information;
-- [ ] do not claim the user can consent on behalf of unrelated third parties;
-- [ ] if any future sync/server/AI feature is introduced, reassess third-party personal-data handling before release.
-
-## 8. SourceCraft Sites / static-host relationship
-
-**OWNER ACTION**
-
-Before production cutover, retain current materials relevant to the actual SourceCraft Sites deployment:
-
-- [ ] SourceCraft organization/repository and final public URL;
-- [ ] current Free-plan/hosting terms;
-- [ ] information available about infrastructure logs/access/retention;
-- [ ] account access controls and MFA/recovery settings;
-- [ ] confirmation that no paid/Pro resource was enabled for this project unless the owner explicitly chooses it later.
-
-Do not infer infrastructure facts solely from repository code.
-
-## 9. Yandex Metrica
-
-**CODE**
-
-- [x] Tag loads only after stored `accepted` choice.
-- [x] Explicit decline supported.
-- [x] Analytics settings can be reopened.
-- [x] Webvisor disabled in code.
-- [x] Withdrawal disables further counter activity and attempts browser-side cleanup.
-- [x] No custom questionnaire values are intentionally sent by Brand Brief Studio code.
-
-**OWNER ACTION**
-
-- [ ] Check Webvisor / Session Replay is also disabled in the Metrica dashboard.
-- [ ] Check advanced/contact-data tracking features are off unless separately justified/documented.
-- [ ] Record actual analytics purpose and provider terms.
-- [ ] Live-test that no Metrica request occurs before consent.
-- [ ] Live-test that questionnaire/free-text values are not present in analytics requests/events.
-
-## 10. Incident response
-
-**OWNER ACTION — PREPARE BEFORE FINAL LAUNCH**
-
-A local-only questionnaire reduces the chance of a central brief database breach, but incidents are still possible through hosting/source compromise, analytics misconfiguration or accidental remote transmission.
-
-Create a process capable of meeting Article 21 requirements where their statutory trigger is met:
-
-- [ ] identify and contain the incident;
-- [ ] preserve evidence and identify affected data/subjects;
-- [ ] initial Roskomnadzor notice within **24 hours** where required;
-- [ ] investigation/follow-up within **72 hours** where required;
-- [ ] maintain an incident register and responsible contacts.
+- privacy/personal-data inbox: `Anostosio@yandex.ru`;
+- respond to substantiated subject requests using the applicable statutory process;
+- document deletion/restriction actions where relevant;
+- maintain an incident escalation note for hosting/analytics incidents;
+- review current Article 21 notification duties if a qualifying personal-data incident occurs.
 
 Primary law:
 
-- Federal Law No. 152-FZ, Article 21: https://www.consultant.ru/document/cons_doc_LAW_61801/d3fe43a7c415353b17faab255bc0de92bea127da/
+- Federal Law No. 152-FZ, Article 21: https://www.consultant.ru/document/cons_doc_LAW_61801/cf0253024e2f96f501863c5303fb312151eea36d/
 
-## 11. Subject requests and deletion
+## 9. Do not silently reintroduce remote questionnaire processing
 
-**CODE**
+Any future change that sends questionnaire/free-text content off-device must trigger a fresh privacy/legal review before release. This includes “temporary” AI fallback, error monitoring with payloads, form analytics or cloud synchronization.
 
-The application supports:
-
-- local draft/history deletion in the current browser;
-- optional analytics withdrawal.
-
-These controls cover product-local storage only. They do not replace an operator process for requests relating to hosting/analytics data where statutory rights apply.
-
-**OWNER ACTION**
-
-Document how requests to access, clarify, stop, block or delete data will be handled, using the final operator contact.
-
-## 12. Security / access
-
-**ENGINEERING + OWNER**
-
-- [x] No AI/API secret is required for the target app.
-- [x] No server database is required.
-- [x] Google Fonts removed from target runtime.
-- [x] Webvisor disabled in code.
-- [ ] Keep GitHub/SourceCraft/analytics accounts protected with MFA and secure recovery.
-- [ ] Restrict repository and analytics access to people who need it.
-- [ ] Review SourceCraft and Metrica account settings before cutover.
-- [ ] Keep questionnaire content out of future telemetry/events.
-
-## 13. Pre-merge / pre-cutover gate
-
-CI success alone is not enough to retire the legacy site.
-
-Required before production cutover:
-
-- [ ] SourceCraft Free site is live and tested over HTTPS;
-- [ ] DevTools Network proves Build causes no questionnaire HTTP request;
-- [ ] no Groq/YandexGPT/Google Fonts/Webvisor request occurs in the target path;
-- [ ] Metrica is silent before consent;
-- [ ] actual SourceCraft URL and host facts are recorded;
-- [ ] canonical/sitemap/robots point to the actual production URL;
-- [ ] real operator/contact information is available;
-- [ ] relevant Roskomnadzor action is completed or documented as not applicable with a defensible basis;
-- [ ] final privacy wording is reconciled with live hosting/analytics settings;
-- [ ] only then redirect or retire the legacy Vercel/Groq production deployment.
+The repository regression tests intentionally guard the current local-only architecture, but tests are not a substitute for live network verification.
