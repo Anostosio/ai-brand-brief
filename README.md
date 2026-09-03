@@ -1,21 +1,20 @@
 # Brand Brief Studio
 
-A bilingual, evidence-aware AI workspace for turning real project context into an editable working brand brief without presenting model assumptions as research.
+A bilingual, evidence-aware browser workspace for turning real project context into an editable working brand brief without presenting assumptions as research.
 
 **Brand:** Anostosio° / Product Lab  
-**Migration target:** `https://brief.anostosio.ru/`  
-**Status of this branch:** privacy/data-architecture migration — **not yet production cutover**
+**Target cost:** **0 ₽ / month**  
+**Target hosting:** SourceCraft Sites / SourceCraft Free  
+**Status of this branch:** local-only privacy migration — **not yet production cutover**
 
-> The current public Vercel/Groq deployment is legacy until the Russian Yandex Cloud target is provisioned and verified. This branch must not be represented as already deployed, and it must not be merged into production until the cutover checklist is complete.
+> The existing public Vercel/Groq deployment remains legacy until a free static production site is published and verified. Do not describe the legacy production URL with the new local-only privacy wording before cutover.
 
 ## Product flow
 
-The product keeps the existing workflow:
-
 1. Complete a structured brand questionnaire.
 2. Run a local readiness diagnostic.
-3. Generate a structured AI draft or use an explicitly labelled local fallback.
-4. Review evidence status and alternative strategic routes.
+3. Build a structured evidence-aware draft **inside the browser**.
+4. Review evidence status and two alternative strategic routes.
 5. Edit, reopen recent work, copy, export JSON or save PDF.
 
 The evidence system distinguishes:
@@ -23,170 +22,133 @@ The evidence system distinguishes:
 | Status | Meaning |
 | --- | --- |
 | Grounded | Directly supported by supplied fields |
-| Mixed | Supplied facts plus professional interpretation |
+| Mixed | Supplied facts plus structured interpretation |
 | Hypothesis | A proposal that needs testing |
-| Needs validation | Evidence is missing or contradictory |
+| Needs validation | Evidence is missing or uncertain |
 
-## Target privacy architecture
+## Zero-cost local-only architecture
 
-```mermaid
-flowchart TD
-  A[Browser questionnaire] --> B[Local draft / readiness]
-  B -->|Generate AI| C[Yandex API Gateway — Russia]
-  C --> D[Yandex Cloud Function — Russia]
-  D --> E[Yandex Cloud AI Studio / YandexGPT]
-  E --> D
-  D --> F[Validated brief + evidence map + 2 routes]
-  F --> G[Browser edit / local history / export]
-  B -. no AI .-> H[Labelled local fallback]
-  I[Yandex Metrica] -. only after opt-in .-> A
+```text
+static site
+   ↓
+user browser
+   ├─ questionnaire
+   ├─ readiness scoring
+   ├─ evidence-aware rules engine
+   ├─ brief + trust map + 2 routes
+   ├─ localStorage history
+   └─ JSON / PDF export
+
+optional Yandex Metrica
+   └─ loads only after analytics opt-in
 ```
 
-### Local browser data
+There is **no application backend, database or remote AI provider** in the target questionnaire flow.
+
+The UI keeps the legacy internal route contract `/api/generate` only as an implementation detail: `local-generation-adapter.js` intercepts it in the browser and returns a local `Response`. No HTTP request is sent for generation.
+
+## Local browser data
 
 - questionnaire draft is stored in Local Storage;
 - up to eight recent briefs per language are stored locally;
 - no user account is required;
-- the target architecture has no application database of briefs;
-- the UI includes **Delete local data** for product draft/history storage.
+- no Brand Brief Studio database stores questionnaires or generated briefs;
+- **Delete local data** removes product draft/history keys from the current browser.
 
-### Server / AI processing
-
-AI generation sends the validated questionnaire only when the user explicitly starts generation.
-
-Target backend:
-
-- Yandex API Gateway;
-- Yandex Cloud Functions, Node.js 22;
-- Yandex Cloud AI Studio;
-- explicit structured output schema;
-- server-side output validation;
-- AI request logging requested off via `x-data-logging-enabled: false`;
-- function service-account IAM token supplied by runtime context;
-- no permanent AI API key in browser/repository.
-
-### Technical identifiers
-
-The network layer necessarily sees technical request metadata including client IP. The application converts the client address into an HMAC-derived in-memory rate-limit key and does not intentionally put raw IP, questionnaire text or generated output into Brand Brief Studio application logs.
-
-This does **not** mean platform-level logs contain no request metadata; their actual production retention/access must be verified before final privacy wording is published.
-
-### Analytics
+## Analytics
 
 Yandex Metrica remains optional:
 
 - tag loads only after explicit opt-in;
-- decline is supported;
-- preference can be reopened later;
 - **Webvisor / Session Replay is disabled**;
+- decline and later withdrawal are supported;
 - withdrawal disables future counter activity and performs best-effort cleanup of accessible first-party Metrica browser identifiers.
 
 Dashboard-side Metrica settings still require a production review.
 
-## Legacy path and fail-closed behavior
+## Hosting
 
-The previous AI flow was:
+The target is **SourceCraft Sites** on **SourceCraft Free**. Official SourceCraft documentation describes Sites as free static hosting and the Free plan as not billed.
+
+SourceCraft Sites requires a public repository in a public SourceCraft organization and provides HTTPS without a server runtime.
+
+See [`deploy/sourcecraft/README.md`](deploy/sourcecraft/README.md).
+
+A custom `brief.anostosio.ru` hostname is **not assumed** to be free or supported by SourceCraft Sites. Until an actually supported zero-cost mapping is confirmed, the production address may be the SourceCraft-provided `sourcecraft.site` URL. Canonical/sitemap values must be finalized after the actual production URL exists.
+
+## External runtime dependencies
+
+Target questionnaire runtime:
+
+- remote AI: **none**;
+- Brand Brief Studio API: **none**;
+- Google Fonts: **removed**;
+- Yandex Metrica: optional, consent-gated;
+- portfolio link: only after user click.
+
+Until licensed local Manrope/Unbounded assets are committed, the site intentionally falls back to locally available/system fonts rather than making a Google Fonts request. The font families are OFL-licensed; see `assets/fonts/README.md` for provenance notes.
+
+## Key files
 
 ```text
-browser -> Vercel function -> Groq
-```
-
-That is not the target public personal-data architecture.
-
-In this migration branch, the default Vercel `api/generate.js` handler intentionally returns `503 MIGRATION_REQUIRED`. The actual generation adapter is `functions/generate.js` for Yandex Cloud Functions.
-
-This prevents an accidental redeploy from silently recreating the foreign AI path after the migration code is merged.
-
-## Files
-
-```text
-api/generate.js                    generation core + fail-closed legacy handler
-functions/generate.js              Yandex Cloud Functions HTTP adapter
-lib/brief-core.js                  validation, readiness, trust and local fallback
-app.js                             browser workflow and local history
+lib/brief-core.js                  validation, readiness, evidence-aware local generator
+local-generation-adapter.js       browser-only generation response adapter
+bootstrap.js                       installs local adapter before app startup
+app.js                             UI workflow, editing, history and export
 analytics.js                       consent-gated Metrica, Webvisor disabled
-privacy-controls.js                delete local draft/history data
+privacy-controls.js                local draft/history deletion
 index.html                         English interface
 ru/index.html                      Russian interface
 privacy/index.html                 English migration-draft privacy page
 ru/privacy/index.html              Russian migration-draft privacy page
-PRIVACY-DATA-MAP.md                actual/target data-flow inventory
-LEGAL-OPERATOR-CHECKLIST.md        code vs operator/Roskomnadzor actions
-SECURITY-PRIVACY-NOTES.md          privacy/security engineering invariants
-deploy/yandex/                     target deployment template and runbook
-test/                              product/provider/privacy regression tests
+PRIVACY-DATA-MAP.md                target data-flow inventory
+LEGAL-OPERATOR-CHECKLIST.md        operator/Roskomnadzor tasks outside code
+SECURITY-PRIVACY-NOTES.md          engineering privacy invariants
+.sourcecraft/sites.yaml            free static hosting configuration
+deploy/sourcecraft/README.md       zero-cost deployment runbook
+test/                              local generation/privacy regression tests
 ```
-
-## Privacy documentation
-
-Read these together:
-
-- [`PRIVACY-DATA-MAP.md`](PRIVACY-DATA-MAP.md)
-- [`LEGAL-OPERATOR-CHECKLIST.md`](LEGAL-OPERATOR-CHECKLIST.md)
-- [`SECURITY-PRIVACY-NOTES.md`](SECURITY-PRIVACY-NOTES.md)
-- [`deploy/yandex/README.md`](deploy/yandex/README.md)
-
-They intentionally do **not** claim that the project is compliant merely because code was changed.
-
-Final production publication is blocked until:
-
-- the real personal-data operator/contact is supplied;
-- applicable Roskomnadzor actions are completed/documented;
-- Russian Yandex Cloud resources, region, logging and access are verified;
-- live Yandex model quality and structured output are tested;
-- Metrica dashboard/settings are verified;
-- Google Fonts are replaced by licensed self-hosted WOFF2 assets;
-- a live network trace proves the final path has no Groq/Vercel AI, Google Fonts or Webvisor dependency;
-- migration-draft privacy wording is replaced by verified final wording.
-
-## Fonts migration blocker
-
-Manrope and Unbounded are licensed under SIL Open Font License 1.1 and may be self-hosted subject to the license terms.
-
-The migration branch temporarily retains Google Fonts links so previews do not render with missing font assets. **This must be removed before production cutover.**
-
-Use official upstream distributions only and preserve OFL notices:
-
-- Manrope: https://github.com/google/fonts/tree/main/ofl/manrope
-- Unbounded: https://github.com/google/fonts/tree/main/ofl/unbounded
-
-After local WOFF2 files are added, remove `fonts.googleapis.com` and `fonts.gstatic.com` from HTML and CSP.
 
 ## Development
 
 ```bash
-npm install
+npm ci
 npm run check
 npm test
 ```
 
-Node.js 22+ is the target runtime.
+Node.js 22+ is used only for repository quality checks. The production application is static HTML/CSS/JavaScript and does not require Node.js on the server.
 
-Local-only environment placeholders are documented in `.env.example`. Production Yandex Cloud Functions should use the attached service-account IAM token from the invocation context rather than a stored long-lived AI key.
+## Reliability / privacy invariants
 
-## Reliability / safety invariants
-
-- validation in browser and server core;
-- 24 KB request-body limit;
-- request timeout;
-- pseudonymous per-client in-memory rate limiting;
-- strict output schema and post-generation validation;
-- one retry for invalid structured model output;
-- no questionnaire/output in application log calls;
-- request IDs for diagnostics;
-- local fallback remains clearly labelled as non-AI;
+- questionnaire generation must not perform an HTTP request;
+- no Groq/YandexGPT/other remote model in the production questionnaire path;
+- generated output must validate against the same brief/trust/alternatives contract;
+- inputs are sanitized and field-length limited;
+- assumptions remain marked as hypotheses or needs-validation;
 - no HTML injection from generated text;
-- restrictive deployment security headers required;
-- privacy regression tests;
-- fail-closed legacy AI path.
+- local history is bounded to eight entries per language;
+- Webvisor remains off;
+- analytics remains opt-in;
+- privacy regression tests must fail if remote AI, Google Fonts or Webvisor is reintroduced without review.
 
-## Production deployment
+## Production gates
 
-See [`deploy/yandex/README.md`](deploy/yandex/README.md).
+Do not retire the legacy production site until all of these are complete:
 
-The recommended public domain is `brief.anostosio.ru`, served directly from the Russian Yandex Cloud target. Only after this is live and verified should the old `ai-brand-brief.vercel.app` deployment be redirected or retired.
+- [ ] SourceCraft Free public organization/repository created;
+- [ ] SourceCraft Sites deployment live over HTTPS;
+- [ ] EN/RU/Privacy/export flows tested;
+- [ ] DevTools Network proves questionnaire generation creates no network request containing questionnaire data;
+- [ ] Metrica is silent before consent and Webvisor remains absent;
+- [ ] actual static-host URL and infrastructure notes recorded;
+- [ ] canonical/sitemap/robots updated to the real production URL;
+- [ ] real personal-data operator/contact supplied for final public notice;
+- [ ] applicable Roskomnadzor obligations reviewed/completed;
+- [ ] final privacy wording reviewed against the live configuration;
+- [ ] only then redirect/retire the old Vercel/Groq deployment.
 
 ---
 
 Created by **Anostosio° / Product Lab**  
-Graphic Design · Branding · Advertising · AI-assisted Product Building
+Graphic Design · Branding · Advertising · Product Building
