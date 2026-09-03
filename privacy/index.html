@@ -16,8 +16,8 @@
     <header class="privacy-hero">
       <p class="eyebrow">Anostosio° / Product Lab</p>
       <h1>Privacy in Brand Brief Studio</h1>
-      <p class="lead">Brand Brief Studio is designed as a static, browser-local product. Questionnaire content is processed on your device and is not sent to a Brand Brief Studio backend or an external AI provider.</p>
-      <div class="privacy-status"><strong>Pre-launch review.</strong> The operator contact and target static host are recorded below. Final publication still requires verification of the live analytics settings and network behaviour.</div>
+      <p class="lead">Brand Brief Studio is a static, browser-local product. Questionnaire content is processed on your device and is not sent to a Brand Brief Studio backend or an external AI provider.</p>
+      <div class="privacy-status"><strong>Live privacy verification completed 3 September 2026.</strong> On the SourceCraft deployment, building a brief produced no questionnaire/API request. After analytics was declined, the Fetch/XHR network list remained empty during brief generation.</div>
     </header>
 
     <article class="privacy-content">
@@ -43,16 +43,16 @@
 
       <section>
         <h2>4. Static hosting and technical request data</h2>
-        <p>The target deployment is the public SourceCraft Sites repository <strong>Anostosio Product Lab / ai-brand-brief</strong>, published at <code>https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/</code>.</p>
+        <p>The public deployment is the SourceCraft Sites repository <strong>Anostosio Product Lab / ai-brand-brief</strong>, published at <code>https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/</code>.</p>
         <p>Delivering any website necessarily exposes ordinary request metadata such as IP address, request headers and timestamps to the hosting infrastructure. Brand Brief Studio has no application backend that receives questionnaire bodies and does not use visitor IP addresses for product-level rate limiting.</p>
-        <p>The site does not promise a specific infrastructure-log retention period until that behaviour is verified against the live SourceCraft service and its current terms/settings.</p>
+        <p>The site does not promise a specific infrastructure-log retention period unless that behaviour is confirmed by the hosting provider's current terms/settings.</p>
       </section>
 
       <section>
         <h2>5. Yandex Metrica</h2>
         <p>Yandex Metrica is optional. Its tag is loaded only after you choose <strong>Allow analytics</strong>. If you decline, the application sets the counter-disable flag and does not initialize the counter.</p>
-        <p><strong>Session Replay / Webvisor is disabled in the site code.</strong> The questionnaire is not intentionally recorded through session replay. You can reopen Analytics settings and withdraw your choice. On withdrawal the application disables further counter activity and makes a best-effort deletion of accessible first-party Metrica cookies and browser-storage identifiers.</p>
-        <p>Withdrawal affects future analytics processing; it cannot retroactively remove events already sent. The operator must also keep the actual Metrica dashboard configuration aligned with this notice.</p>
+        <p><strong>Session Replay / Webvisor, form analysis and unnecessary advanced tracking are disabled in the current site/dashboard configuration.</strong> You can reopen Analytics settings and withdraw your choice. On withdrawal the application disables further counter activity and makes a best-effort deletion of accessible first-party Metrica cookies and browser-storage identifiers.</p>
+        <p>Withdrawal affects future analytics processing; it cannot retroactively remove events already sent. The operator should keep the Metrica dashboard configuration aligned with this notice.</p>
       </section>
 
       <section>
@@ -70,7 +70,7 @@
 
       <section>
         <h2>7. External services</h2>
-        <p>The target questionnaire flow has no remote AI provider. Google Fonts is removed from the target runtime; typography uses local/system assets until licensed font files are self-hosted. The portfolio link opens only after you choose it. Yandex Metrica is the only optional analytics dependency and is consent-gated.</p>
+        <p>The questionnaire flow has no remote AI provider. Google Fonts is absent from the runtime; typography uses local/system assets until licensed font files are self-hosted. The portfolio link opens only after you choose it. Yandex Metrica is the only optional analytics dependency and is consent-gated.</p>
       </section>
 
       <section>
@@ -80,8 +80,8 @@
       </section>
 
       <section>
-        <h2>9. Production status</h2>
-        <p>This notice describes the <strong>zero-cost browser-local SourceCraft target</strong>. The legacy Vercel/Groq deployment must not be represented by this notice after cutover planning begins. Final cutover requires a live network check and verification of the Metrica dashboard configuration.</p>
+        <h2>9. Current production architecture</h2>
+        <p>This notice describes the <strong>zero-cost browser-local SourceCraft deployment</strong>. Live verification confirmed that brief generation itself does not transmit questionnaire/free-text content. Optional analytics remains separate and consent-gated.</p>
       </section>
     </article>
 
