@@ -25,24 +25,30 @@ for (const path of ['index.html', 'ru/index.html']) {
   });
 }
 
-test('bootstrap rebases root-relative links for static subpath hosting without hardcoding SourceCraft', async () => {
+test('bootstrap rebases root-relative links and runtime SEO for static subpath hosting without hardcoding SourceCraft', async () => {
   const source = await readFile(new URL('../bootstrap.js', import.meta.url), 'utf8');
   assert.match(source, /new URL\('\.', moduleUrl\)/);
   assert.match(source, /\[href\^="\/"\], \[src\^="\/"\], \[action\^="\/"\]/);
+  assert.match(source, /syncRuntimeSeo/);
+  assert.match(source, /link\[rel="canonical"\]/);
+  assert.match(source, /meta\[property="og:url"\]/);
+  assert.match(source, /assets\/ai-brand-brief-preview\.webp/);
   assert.doesNotMatch(source, /\/ai-brand-brief\//);
 });
 
-test('privacy pages use relative assets and back links so subpath hosting cannot escape to the domain root', async () => {
+test('privacy pages use real operator contact, SourceCraft host details and relative assets/back links', async () => {
   const [en, ru] = await Promise.all([
     readFile(new URL('../privacy/index.html', import.meta.url), 'utf8'),
     readFile(new URL('../ru/privacy/index.html', import.meta.url), 'utf8')
   ]);
   for (const html of [en, ru]) {
-    assert.match(html, /Migration draft|Черновик миграции/);
+    assert.match(html, /Pre-launch review|Предрелизная проверка/);
     assert.match(html, /Local Storage/);
     assert.match(html, /SourceCraft Sites/);
+    assert.match(html, /Anostosio@yandex\.ru/);
+    assert.match(html, /individual|физическое лицо/);
     assert.match(html, /Webvisor|Вебвизор/);
-    assert.match(html, /TODO/);
+    assert.doesNotMatch(html, /FULL LEGAL NAME|ПОЛНОЕ НАИМЕНОВАНИЕ/);
     assert.doesNotMatch(html, /Yandex Cloud AI Studio/);
     assert.doesNotMatch(html, /(?:href|src)=["']\/(?!\/)/);
   }
@@ -57,6 +63,7 @@ test('search discovery files target the live SourceCraft URLs and remain subpath
   ]);
 
   assert.doesNotMatch(robots, /Disallow:\s*\/api\//);
+  assert.match(robots, /anostosio-product-lab\.sourcecraft\.site\/ai-brand-brief\/sitemap\.xml/);
   assert.match(sitemap, /<loc>https:\/\/anostosio-product-lab\.sourcecraft\.site\/ai-brand-brief\/<\/loc>/);
   assert.match(sitemap, /<loc>https:\/\/anostosio-product-lab\.sourcecraft\.site\/ai-brand-brief\/ru\/<\/loc>/);
   const parsedManifest = JSON.parse(manifest);
