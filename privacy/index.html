@@ -3,13 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="How Brand Brief Studio handles local drafts, AI generation, technical data and analytics." />
+  <meta name="description" content="How Brand Brief Studio handles browser-local questionnaire data, static hosting and optional analytics." />
   <meta name="robots" content="noindex,nofollow" />
   <title>Privacy — Brand Brief Studio</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/style.css" />
   <link rel="stylesheet" href="/privacy.css" />
 </head>
@@ -19,82 +16,74 @@
     <header class="privacy-hero">
       <p class="eyebrow">Anostosio° / Product Lab</p>
       <h1>Privacy in Brand Brief Studio</h1>
-      <p class="lead">This page describes the actual data flows of Brand Brief Studio: what remains in your browser, what is sent for AI generation, what technical data is used, and how optional analytics works.</p>
-      <div class="privacy-status"><strong>Migration draft.</strong> This policy is prepared for the Russian production architecture. It must not be treated as final production legal notice until the operator identity/contact, Yandex Cloud production settings and required Roskomnadzor actions are completed and verified.</div>
+      <p class="lead">Brand Brief Studio is designed as a static, browser-local product. Questionnaire content is processed on your device and is not sent to a Brand Brief Studio backend or an external AI provider.</p>
+      <div class="privacy-status"><strong>Migration draft.</strong> This notice becomes final only after the free static production host, real operator/contact information, analytics account settings and applicable Roskomnadzor obligations are verified.</div>
     </header>
 
     <article class="privacy-content">
       <section>
         <h2>1. Operator and contact</h2>
-        <p class="privacy-todo">TODO before production: [FULL LEGAL NAME / LEGAL STATUS OF THE PERSONAL DATA OPERATOR], [CONTACT EMAIL], and other operator information required for the final public notice.</p>
-        <p>Brand Brief Studio is a product of Anostosio° / Product Lab. This repository does not invent legal status, registration numbers, tax numbers, addresses or other legal details that have not been supplied by the product owner.</p>
+        <p class="privacy-todo">TODO before production: [FULL LEGAL NAME / LEGAL STATUS OF THE PERSONAL DATA OPERATOR], [CONTACT EMAIL], and any other information required for the final public notice.</p>
+        <p>Brand Brief Studio is a product of Anostosio° / Product Lab. The repository does not invent registration numbers, tax numbers, addresses or a legal status that the owner has not supplied.</p>
       </section>
 
       <section>
-        <h2>2. Local data in your browser</h2>
-        <p>The questionnaire draft is saved in this browser so you can continue your work. Up to eight recent briefs are also stored locally for each interface language. A recent-brief entry contains the questionnaire input, generated or local output, evidence metadata, alternative directions and a local timestamp.</p>
-        <p>These records are stored with the browser Local Storage API. Brand Brief Studio does not synchronize them to an account or application database. They remain until you delete them, clear site data in your browser, or the browser removes them.</p>
-        <p>The <strong>Delete local data</strong> action removes Brand Brief Studio draft/history keys from this browser. Exported JSON/PDF files that you saved elsewhere are outside the application's control.</p>
+        <h2>2. Questionnaire and generated brief</h2>
+        <p>The questionnaire is processed by JavaScript running in your browser. Pressing <strong>Build working brief</strong> does not upload questionnaire fields to a Brand Brief Studio server and does not call Groq, YandexGPT or another remote model.</p>
+        <p>The result is produced by a deterministic evidence-aware rules engine bundled with the site. It uses only the fields you entered, marks hypotheses and validation gaps, and does not claim to perform market research.</p>
       </section>
 
       <section>
-        <h2>3. Server processing during AI generation</h2>
-        <p>No questionnaire is sent to the server merely because you type or save a local draft. When you press the AI generation button, the validated questionnaire is sent to the Brand Brief Studio generation endpoint.</p>
-        <p>The target production architecture processes that request in the Russian Yandex Cloud environment and sends the project input to Yandex Cloud AI Studio to generate the structured working brief. The application does not create a server-side database of user briefs.</p>
-        <p>Do not submit personal data of third parties, special-category personal data, passwords, API keys, authentication secrets or confidential client information. A project questionnaire can contain personal data if you choose to enter information about an identifiable person.</p>
+        <h2>3. Local browser storage</h2>
+        <p>The questionnaire draft and recent briefs are stored through the browser Local Storage API. Up to eight recent briefs are retained per interface language. A history entry can contain questionnaire input, generated output, evidence metadata, alternative directions and local timestamps.</p>
+        <p>There is no Brand Brief Studio account and no application database synchronizing these records. They remain on the current device/browser until you delete them, clear site data or the browser removes them.</p>
+        <p>The <strong>Delete local data</strong> action removes Brand Brief Studio draft/history keys from this browser. JSON/PDF files exported elsewhere are outside the site's control.</p>
       </section>
 
       <section>
-        <h2>4. AI provider</h2>
-        <p>The target provider is <strong>Yandex Cloud AI Studio</strong> using a Yandex model in the Russian cloud contour. The generation request includes the questionnaire fields needed to produce the brief and system instructions defining the output structure.</p>
-        <p>The application explicitly requests disabled AI prompt/output logging through the provider request header. This is an application setting; the production cloud account and service configuration must also be verified before launch.</p>
+        <h2>4. Static hosting and technical request data</h2>
+        <p>The target deployment is a free static site. Delivering any website necessarily exposes ordinary request metadata such as IP address, request headers and timestamps to the hosting infrastructure. Brand Brief Studio has no application backend that receives questionnaire bodies and does not use visitor IP addresses for product-level rate limiting.</p>
+        <p class="privacy-todo">TODO before production: record the exact SourceCraft Sites production organization/repository, hosting terms, log/access settings and final public URL. Do not make a more specific infrastructure-retention promise until those settings are verified.</p>
       </section>
 
       <section>
-        <h2>5. Technical data</h2>
-        <p>Network infrastructure necessarily receives technical request data such as an IP address, request headers and timestamps. The application uses the client address only to derive a pseudonymous HMAC rate-limit key. The raw address is not written to Brand Brief Studio application logs.</p>
-        <p>For generation diagnostics the application may log a random request ID, outcome, duration, attempt number, provider/model identifier and upstream status/error code. Questionnaire text and generated brief content are deliberately excluded from application log calls.</p>
-      </section>
-
-      <section>
-        <h2>6. Yandex Metrica</h2>
+        <h2>5. Yandex Metrica</h2>
         <p>Yandex Metrica is optional. Its tag is loaded only after you choose <strong>Allow analytics</strong>. If you decline, the application sets the counter-disable flag and does not initialize the counter.</p>
-        <p><strong>Session Replay / Webvisor is disabled.</strong> Brand Brief Studio does not intentionally use session replay to record questionnaire interactions. You can reopen Analytics settings and withdraw the choice. On withdrawal the application disables further counter activity and makes a best-effort deletion of first-party Metrica cookies and browser-storage identifiers accessible to JavaScript.</p>
-        <p>Withdrawal affects future analytics processing; it cannot retroactively remove events already sent to the analytics provider. The final production operator documentation must record the exact Metrica configuration used in the counter dashboard.</p>
+        <p><strong>Session Replay / Webvisor is disabled.</strong> The questionnaire is not intentionally recorded through session replay. You can reopen Analytics settings and withdraw your choice. On withdrawal the application disables further counter activity and makes a best-effort deletion of accessible first-party Metrica cookies and browser-storage identifiers.</p>
+        <p>Withdrawal affects future analytics processing; it cannot retroactively remove events already sent. The final operator documentation must record the actual Metrica dashboard configuration, including any advanced/contact-data tracking settings.</p>
       </section>
 
       <section>
-        <h2>7. Cookies and browser storage</h2>
+        <h2>6. Cookies and browser storage</h2>
         <div class="privacy-table-wrap"><table>
           <thead><tr><th>Item</th><th>Purpose</th><th>Where</th><th>Retention</th></tr></thead>
           <tbody>
             <tr><td><code>brand-brief-studio:draft:shared</code></td><td>Questionnaire draft</td><td>Local Storage</td><td>Until deletion/browser cleanup</td></tr>
             <tr><td><code>brand-brief-studio:history:…</code></td><td>Up to 8 recent briefs per language</td><td>Local Storage</td><td>Until deletion/browser cleanup</td></tr>
-            <tr><td><code>brandBrief.analyticsConsent.v1</code></td><td>Remember analytics choice</td><td>Local Storage</td><td>Until site data is cleared or preference is changed</td></tr>
-            <tr><td><code>_ym_*</code> and related Yandex identifiers</td><td>Optional analytics after consent</td><td>Cookies/browser storage</td><td>According to Yandex Metrica settings and cookie rules; best-effort deletion on withdrawal</td></tr>
+            <tr><td><code>brandBrief.analyticsConsent.v1</code></td><td>Remember analytics choice</td><td>Local Storage</td><td>Until site data is cleared or preference changes</td></tr>
+            <tr><td><code>_ym_*</code> and related Yandex identifiers</td><td>Optional analytics after consent</td><td>Cookies/browser storage</td><td>According to Yandex Metrica settings; best-effort cleanup on withdrawal</td></tr>
           </tbody>
         </table></div>
       </section>
 
       <section>
-        <h2>8. Retention and deletion</h2>
-        <p>Brand Brief Studio has no application database for questionnaires or generated briefs in the target architecture. Browser drafts/history remain locally as described above. The in-memory application rate-limit window is ten minutes; expired pseudonymous buckets are removed during subsequent requests.</p>
-        <p class="privacy-todo">TODO before production: verify and document actual Yandex Cloud API Gateway / Cloud Functions platform-log retention in the production account, access controls and any account-level diagnostic settings. Do not publish a more specific server-retention promise until this is checked.</p>
+        <h2>7. External services</h2>
+        <p>The target questionnaire flow has no remote AI provider. Google Fonts is removed from the target runtime; typography uses local/system assets until licensed font files are self-hosted. The portfolio link opens only after you choose it. Yandex Metrica is the only optional analytics dependency and is consent-gated.</p>
       </section>
 
       <section>
-        <h2>9. Your choices and rights</h2>
-        <p>You can avoid AI processing and use the explicitly labelled local structured draft instead. You can remove locally saved product data through the interface and change the optional analytics preference.</p>
-        <p>Rights relating to personal-data processing and requests to the operator will be handled using the contact published in section 1 once the operator information is completed.</p>
+        <h2>8. Your choices</h2>
+        <p>You can use the brief builder without enabling analytics. You can remove locally stored product data through the interface and clear all site data in your browser at any time.</p>
+        <p>Personal-data rights and requests concerning infrastructure or optional analytics will be handled through the operator contact published in section 1 once the operator information is completed.</p>
       </section>
 
       <section>
-        <h2>10. Production status</h2>
-        <p>This privacy page describes the <strong>target Russian architecture in the migration branch</strong>. The previous Vercel/Groq deployment must not be represented by this notice as though it already used the Russian processing path. The production cutover is complete only after the Russian hosting/API/AI path, DNS, logs, analytics settings and operator obligations have been verified.</p>
+        <h2>9. Production status</h2>
+        <p>This page describes the <strong>zero-cost local-only target architecture in the migration branch</strong>. It must not be used to describe the legacy Vercel/Groq production path before the static cutover is complete. Production verification includes the static host, public URL, network trace, analytics settings and operator documentation.</p>
       </section>
     </article>
 
-    <footer class="privacy-footer">Brand Brief Studio · Anostosio° / Product Lab · Last architecture review: 3 September 2026.</footer>
+    <footer class="privacy-footer">Brand Brief Studio · Anostosio° / Product Lab · Architecture review: 3 September 2026.</footer>
   </main>
 </body>
 </html>
