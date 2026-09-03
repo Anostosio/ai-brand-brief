@@ -36,18 +36,20 @@ test('bootstrap rebases root-relative links and runtime SEO for static subpath h
   assert.doesNotMatch(source, /\/ai-brand-brief\//);
 });
 
-test('privacy pages use real operator contact, SourceCraft host details and relative assets/back links', async () => {
+test('privacy pages record completed live verification, real operator contact and SourceCraft host details', async () => {
   const [en, ru] = await Promise.all([
     readFile(new URL('../privacy/index.html', import.meta.url), 'utf8'),
     readFile(new URL('../ru/privacy/index.html', import.meta.url), 'utf8')
   ]);
   for (const html of [en, ru]) {
-    assert.match(html, /Pre-launch review|Предрелизная проверка/);
+    assert.match(html, /Live privacy verification completed|Живая privacy-проверка завершена/);
     assert.match(html, /Local Storage/);
-    assert.match(html, /SourceCraft Sites/);
+    assert.match(html, /SourceCraft Sites|SourceCraft/);
     assert.match(html, /Anostosio@yandex\.ru/);
     assert.match(html, /individual|физическое лицо/);
     assert.match(html, /Webvisor|Вебвизор/);
+    assert.match(html, /Fetch\/XHR/);
+    assert.doesNotMatch(html, /Pre-launch review|Предрелизная проверка/);
     assert.doesNotMatch(html, /FULL LEGAL NAME|ПОЛНОЕ НАИМЕНОВАНИЕ/);
     assert.doesNotMatch(html, /Yandex Cloud AI Studio/);
     assert.doesNotMatch(html, /(?:href|src)=["']\/(?!\/)/);
