@@ -7,16 +7,16 @@
   <meta name="theme-color" content="#f4f0eb" />
   <meta property="og:title" content="Brand Brief Studio — Anostosio°" />
   <meta property="og:description" content="ИИ-инструмент для доказательного и практичного бренд-брифа." />
-  <meta property="og:image" content="https://ai-brand-brief.vercel.app/assets/ai-brand-brief-preview.webp" />
+  <meta property="og:image" content="https://brief.anostosio.ru/assets/ai-brand-brief-preview.webp" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://ai-brand-brief.vercel.app/ru/" />
+  <meta property="og:url" content="https://brief.anostosio.ru/ru/" />
   <meta property="og:locale" content="ru_RU" />
   <meta name="twitter:card" content="summary_large_image" />
   <title>Brand Brief Studio — Anostosio°</title>
-  <link rel="canonical" href="https://ai-brand-brief.vercel.app/ru/" />
-  <link rel="alternate" hreflang="en" href="https://ai-brand-brief.vercel.app/" />
-  <link rel="alternate" hreflang="ru" href="https://ai-brand-brief.vercel.app/ru/" />
-  <link rel="alternate" hreflang="x-default" href="https://ai-brand-brief.vercel.app/" />
+  <link rel="canonical" href="https://brief.anostosio.ru/ru/" />
+  <link rel="alternate" hreflang="en" href="https://brief.anostosio.ru/" />
+  <link rel="alternate" hreflang="ru" href="https://brief.anostosio.ru/ru/" />
+  <link rel="alternate" hreflang="x-default" href="https://brief.anostosio.ru/" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -97,7 +97,7 @@
 
         <div id="formError" class="inline-error" role="alert" hidden></div>
         <button class="primary-button" type="submit"><span>Собрать рабочий бриф</span><span aria-hidden="true">↗</span></button>
-        <p class="form-hint">Черновик и последние брифы хранятся только в этом браузере. Ответы обрабатываются внешним ИИ-сервисом — не указывайте конфиденциальные данные клиентов. Результат ИИ не считается подтверждённым исследованием.</p>
+        <p class="form-hint">Черновики и недавние брифы остаются в этом браузере. При генерации с ИИ анкета отправляется на сервер Brand Brief Studio и обрабатывается в российском контуре Yandex Cloud AI Studio. Не вводите персональные данные третьих лиц, специальные категории ПДн, пароли и ключи доступа или конфиденциальные сведения клиентов. <a href="/ru/privacy/">Подробнее о данных</a>.</p>
       </form>
 
       <section class="panel result-panel" aria-live="polite" aria-busy="false">
@@ -144,12 +144,13 @@
     </section>
   </main>
 
-  <footer><p>Концепция продукта, UX/UI и методология бренда — Anostosio°</p><div class="footer-actions"><button type="button" class="privacy-button" id="analyticsSettings">Настройки аналитики</button><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Портфолио ↗</a></div></footer>
+  <footer><p>Концепция продукта, UX/UI и методология бренда — Anostosio°</p><div class="footer-actions"><a class="privacy-button" href="/ru/privacy/">Конфиденциальность</a><button type="button" class="privacy-button" id="localDataDelete">Удалить локальные данные</button><button type="button" class="privacy-button" id="analyticsSettings">Настройки аналитики</button><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Портфолио ↗</a></div></footer>
   <aside class="consent-banner" id="analyticsConsent" aria-labelledby="analyticsConsentTitle" hidden>
-    <div><strong id="analyticsConsentTitle">Помочь улучшить Brand Brief Studio?</strong><p>С вашего разрешения Яндекс Метрика измерит посещения и использование интерфейса, включая Вебвизор. Не вводите конфиденциальные данные клиентов.</p></div>
+    <div><strong id="analyticsConsentTitle">Помочь улучшить Brand Brief Studio?</strong><p>С вашего разрешения Яндекс Метрика измерит посещения и базовое использование интерфейса. Вебвизор отключён. Вы сможете изменить выбор позже в настройках аналитики.</p></div>
     <div class="consent-actions"><button type="button" class="consent-secondary" id="analyticsDecline">Не сейчас</button><button type="button" class="consent-primary" id="analyticsAccept">Разрешить аналитику</button></div>
   </aside>
   <script type="module" src="../app.js"></script>
+  <script type="module" src="../privacy-controls.js"></script>
   <script type="module" src="../analytics.js"></script>
 </body>
 </html>
