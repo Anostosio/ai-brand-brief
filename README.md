@@ -124,6 +124,10 @@ Questionnaire answers submitted for AI generation are processed by Groq. The pub
 - GitHub Actions
 - Vercel
 
+## Search and brand surface
+
+The deployment includes a custom `B°` favicon, web app manifest, canonical URLs, EN/RU hreflang links, Open Graph metadata, `robots.txt` and a bilingual XML sitemap. The site is ready for ownership verification in Google Search Console and for a Yandex Metrica tag once account-specific identifiers are issued.
+
 ## Quality checks
 
 The dependency-free test suite covers sanitization, required inputs, readiness scoring, local fallback generation, evidence metadata, alternatives, provider parsing, upstream error classification and the bilingual HTML interaction contract.
