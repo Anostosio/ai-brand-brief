@@ -25,7 +25,14 @@ for (const path of ['index.html', 'ru/index.html']) {
   });
 }
 
-test('privacy pages describe browser-local generation, static hosting and optional analytics', async () => {
+test('bootstrap rebases root-relative links for static subpath hosting without hardcoding SourceCraft', async () => {
+  const source = await readFile(new URL('../bootstrap.js', import.meta.url), 'utf8');
+  assert.match(source, /new URL\('\.', moduleUrl\)/);
+  assert.match(source, /\[href\^="\/"\], \[src\^="\/"\], \[action\^="\/"\]/);
+  assert.doesNotMatch(source, /\/ai-brand-brief\//);
+});
+
+test('privacy pages use relative assets and back links so subpath hosting cannot escape to the domain root', async () => {
   const [en, ru] = await Promise.all([
     readFile(new URL('../privacy/index.html', import.meta.url), 'utf8'),
     readFile(new URL('../ru/privacy/index.html', import.meta.url), 'utf8')
@@ -37,6 +44,7 @@ test('privacy pages describe browser-local generation, static hosting and option
     assert.match(html, /Webvisor|Вебвизор/);
     assert.match(html, /TODO/);
     assert.doesNotMatch(html, /Yandex Cloud AI Studio/);
+    assert.doesNotMatch(html, /(?:href|src)=["']\/(?!\/)/);
   }
 });
 
