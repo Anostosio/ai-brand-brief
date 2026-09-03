@@ -7,16 +7,16 @@
   <meta name="theme-color" content="#f4f0eb" />
   <meta property="og:title" content="Brand Brief Studio — Anostosio°" />
   <meta property="og:description" content="An evidence-aware AI workspace for creating practical brand briefs." />
-  <meta property="og:image" content="https://ai-brand-brief.vercel.app/assets/ai-brand-brief-preview.webp" />
+  <meta property="og:image" content="https://brief.anostosio.ru/assets/ai-brand-brief-preview.webp" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://ai-brand-brief.vercel.app/" />
+  <meta property="og:url" content="https://brief.anostosio.ru/" />
   <meta property="og:locale" content="en_US" />
   <meta name="twitter:card" content="summary_large_image" />
   <title>Brand Brief Studio — Anostosio°</title>
-  <link rel="canonical" href="https://ai-brand-brief.vercel.app/" />
-  <link rel="alternate" hreflang="en" href="https://ai-brand-brief.vercel.app/" />
-  <link rel="alternate" hreflang="ru" href="https://ai-brand-brief.vercel.app/ru/" />
-  <link rel="alternate" hreflang="x-default" href="https://ai-brand-brief.vercel.app/" />
+  <link rel="canonical" href="https://brief.anostosio.ru/" />
+  <link rel="alternate" hreflang="en" href="https://brief.anostosio.ru/" />
+  <link rel="alternate" hreflang="ru" href="https://brief.anostosio.ru/ru/" />
+  <link rel="alternate" hreflang="x-default" href="https://brief.anostosio.ru/" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -97,7 +97,7 @@
 
         <div id="formError" class="inline-error" role="alert" hidden></div>
         <button class="primary-button" type="submit"><span>Generate working brief</span><span aria-hidden="true">↗</span></button>
-        <p class="form-hint">Your draft and recent briefs stay in this browser. Submitted answers are processed by an external AI provider; do not include confidential client information. AI output is not treated as verified research.</p>
+        <p class="form-hint">Drafts and recent briefs stay in this browser. When you generate with AI, the questionnaire is sent to the Brand Brief Studio server and processed in the Russian Yandex Cloud AI Studio environment. Do not enter personal data of third parties, special-category personal data, credentials or confidential client information. <a href="/privacy/">Privacy details</a>.</p>
       </form>
 
       <section class="panel result-panel" aria-live="polite" aria-busy="false">
@@ -144,12 +144,13 @@
     </section>
   </main>
 
-  <footer><p>Product concept, UX/UI and brand methodology by Anostosio°</p><div class="footer-actions"><button type="button" class="privacy-button" id="analyticsSettings">Analytics settings</button><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Portfolio ↗</a></div></footer>
+  <footer><p>Product concept, UX/UI and brand methodology by Anostosio°</p><div class="footer-actions"><a class="privacy-button" href="/privacy/">Privacy</a><button type="button" class="privacy-button" id="localDataDelete">Delete local data</button><button type="button" class="privacy-button" id="analyticsSettings">Analytics settings</button><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Portfolio ↗</a></div></footer>
   <aside class="consent-banner" id="analyticsConsent" aria-labelledby="analyticsConsentTitle" hidden>
-    <div><strong id="analyticsConsentTitle">Help improve Brand Brief Studio?</strong><p>With your permission, Yandex Metrica measures visits and interface usage, including Session Replay. Do not enter confidential client data.</p></div>
+    <div><strong id="analyticsConsentTitle">Help improve Brand Brief Studio?</strong><p>With your permission, Yandex Metrica measures visits and basic interface usage. Session Replay is disabled. You can change this choice later in Analytics settings.</p></div>
     <div class="consent-actions"><button type="button" class="consent-secondary" id="analyticsDecline">Not now</button><button type="button" class="consent-primary" id="analyticsAccept">Allow analytics</button></div>
   </aside>
   <script type="module" src="app.js"></script>
+  <script type="module" src="privacy-controls.js"></script>
   <script type="module" src="analytics.js"></script>
 </body>
 </html>
