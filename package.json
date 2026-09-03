@@ -1,12 +1,12 @@
 {
   "name": "ai-brand-brief",
-  "version": "1.3.0-migration",
+  "version": "1.3.0-local",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test",
     "test:coverage": "node --test --experimental-test-coverage",
-    "check": "node --check app.js && node --check analytics.js && node --check privacy-controls.js && node --check api/generate.js && node --check functions/generate.js && node --check lib/brief-core.js"
+    "check": "node --check app.js && node --check bootstrap.js && node --check local-generation-adapter.js && node --check analytics.js && node --check privacy-controls.js && node --check lib/brief-core.js"
   },
   "engines": {
     "node": ">=22"
