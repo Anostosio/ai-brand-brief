@@ -144,7 +144,12 @@
     </section>
   </main>
 
-  <footer><p>Product concept, UX/UI and brand methodology by Anostosio°</p><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Portfolio ↗</a></footer>
+  <footer><p>Product concept, UX/UI and brand methodology by Anostosio°</p><div class="footer-actions"><button type="button" class="privacy-button" id="analyticsSettings">Analytics settings</button><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Portfolio ↗</a></div></footer>
+  <aside class="consent-banner" id="analyticsConsent" aria-labelledby="analyticsConsentTitle" hidden>
+    <div><strong id="analyticsConsentTitle">Help improve Brand Brief Studio?</strong><p>With your permission, Yandex Metrica measures visits and interface usage, including Session Replay. Do not enter confidential client data.</p></div>
+    <div class="consent-actions"><button type="button" class="consent-secondary" id="analyticsDecline">Not now</button><button type="button" class="consent-primary" id="analyticsAccept">Allow analytics</button></div>
+  </aside>
   <script type="module" src="app.js"></script>
+  <script type="module" src="analytics.js"></script>
 </body>
 </html>

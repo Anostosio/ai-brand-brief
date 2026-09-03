@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node --test",
     "test:coverage": "node --test --experimental-test-coverage",
-    "check": "node --check app.js && node --check api/generate.js && node --check lib/brief-core.js"
+    "check": "node --check app.js && node --check analytics.js && node --check api/generate.js && node --check lib/brief-core.js"
   },
   "engines": {
     "node": ">=20"
