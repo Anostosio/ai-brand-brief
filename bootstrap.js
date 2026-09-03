@@ -1,15 +1,12 @@
 import { installLocalGenerationAdapter } from './local-generation-adapter.js';
 
-function getStaticSiteBasePath(pathname = globalThis.location?.pathname || '/') {
-  const marker = '/ai-brand-brief/';
-  const index = pathname.indexOf(marker);
-  return index >= 0 ? pathname.slice(0, index + marker.length) : '/';
+function getStaticSiteBasePath(moduleUrl = import.meta.url) {
+  const baseUrl = new URL('.', moduleUrl);
+  return baseUrl.pathname.endsWith('/') ? baseUrl.pathname : `${baseUrl.pathname}/`;
 }
 
-function rewriteRootRelativeLinks(documentObject = globalThis.document) {
-  if (!documentObject) return;
-  const basePath = getStaticSiteBasePath();
-  if (basePath === '/') return;
+function rewriteRootRelativeLinks(documentObject = globalThis.document, basePath = getStaticSiteBasePath()) {
+  if (!documentObject || basePath === '/') return;
 
   for (const element of documentObject.querySelectorAll('[href^="/"], [src^="/"], [action^="/"]')) {
     for (const attribute of ['href', 'src', 'action']) {
