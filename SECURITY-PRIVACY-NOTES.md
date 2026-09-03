@@ -1,206 +1,137 @@
-# Brand Brief Studio — Security & Privacy Engineering Notes
+# Brand Brief Studio — Security & Privacy Notes
 
-Status: migration branch `privacy-rf-architecture`  
-Reviewed: 2026-09-03
+Status: **v1.3 local-only target**  
+Reviewed: **2026-09-03**
 
-## Design goals
+These are engineering invariants for the production branch. They are not a substitute for legal/operator documentation.
 
-1. Keep questionnaire drafts/history browser-local unless the user explicitly starts AI generation.
-2. Keep the public user-data path inside the planned Russian Yandex Cloud production contour.
-3. Avoid a server-side brief database unless the product later genuinely needs accounts/sync.
-4. Minimize technical identifiers and do not application-log questionnaire or generated content.
-5. Treat optional analytics as optional and reversible.
-6. Fail closed rather than silently falling back to a foreign AI backend.
+## 1. Core privacy invariant
 
-## Generation backend
+Questionnaire content and generated brief content must remain in the user's browser unless a future feature receives a new explicit privacy/legal review.
 
-### Platform-neutral core
-
-`api/generate.js` contains validation, schema, throttling and Yandex AI request logic.
-
-### Russian runtime adapter
-
-`functions/generate.js` is the Yandex Cloud Functions adapter. It passes the runtime IAM token and function folder to the generation core.
-
-Production should attach a dedicated service account with only the permissions required to invoke the selected AI model. Do not configure a long-lived API key in the browser or repository.
-
-### Legacy Vercel safety behavior
-
-The default Vercel handler in `api/generate.js` returns `503 MIGRATION_REQUIRED` and does **not** send the questionnaire to any provider. This is deliberate.
-
-Reason: after the migration code is merged, an accidental Vercel deployment must not recreate the old `Vercel -> Groq` personal-data path.
-
-Do not merge until the Russian endpoint is live, because otherwise AI generation on the old production domain will intentionally stop.
-
-## AI request controls
-
-The Yandex AI request sets:
-
-```http
-x-data-logging-enabled: false
-```
-
-The application sends the questionnaire only for generation, requests structured JSON and validates the returned structure before sending it to the browser.
-
-The code allows one retry when model output fails validation. A retry means the same questionnaire may be sent to AI Studio a second time; privacy documentation should not imply exactly one provider request per click.
-
-## Application logging
-
-Allowed application log fields:
-
-- request ID;
-- outcome;
-- duration;
-- attempt number;
-- model/provider identifier;
-- upstream HTTP status / internal error code.
-
-Do **not** add:
-
-- questionnaire/body;
-- prompt text;
-- generated brief;
-- raw IP/client address;
-- authorization token;
-- cookies;
-- imported JSON content.
-
-Changes to `logRequest()` require privacy review.
-
-Platform-level API Gateway / Cloud Functions logs are separate from application `console.info`. Their actual retention, request metadata and access must be verified in the production Yandex Cloud account.
-
-## Rate limiting
-
-Application throttling uses:
+Current generation path:
 
 ```text
-raw client address
-  -> HMAC-SHA256 with per-instance random secret
-  -> in-memory rate bucket
+form -> sanitize/validate -> local rules engine -> render/localStorage/export
 ```
 
-Window: 10 minutes.  
-Per-client application limit: 5 requests per window.  
-Global per-instance application limit: 80 requests/hour.
+There is no production server generation endpoint and no remote AI provider.
 
-This is intentionally lightweight and is not a durable distributed quota. It reduces raw-IP retention in application state but does not hide the IP from the underlying network infrastructure.
+## 2. Local adapter
 
-If a shared/infrastructure rate limiter is introduced, review its storage region, logs, training/telemetry options and retention before production use.
+`bootstrap.js` installs `local-generation-adapter.js` before `app.js` runs.
 
-## Browser-local data
+The adapter intercepts the legacy route-shaped call to `/api/generate` and returns a browser-created `Response`. This preserves the stable UI contract while removing network generation.
 
-Draft/history use Local Storage. Up to 8 recent briefs per locale are stored.
+Regression requirement: a real network request to `/api/generate` during Build is a production bug.
 
-`privacy-controls.js` deletes all keys beginning with:
+## 3. Input handling
 
-```text
-brand-brief-studio:
-```
+- sanitize all supported questionnaire fields;
+- ignore unknown fields;
+- enforce field length caps;
+- require the defined foundation fields before generation;
+- render output via text nodes / existing safe DOM paths, not injected HTML;
+- imported JSON must pass validation before it becomes project state.
 
-This does not delete files the user previously exported or the separate analytics-consent preference.
+## 4. Local persistence
 
-## Analytics
+Product keys:
 
-`analytics.js` requirements:
+- `brand-brief-studio:draft:shared`
+- `brand-brief-studio:history:v12:<language>`
 
-- never load the Metrica tag until `accepted` is stored;
+History is bounded to eight entries per language. No TTL is currently applied. The UI provides a user-triggered deletion action for all `brand-brief-studio:*` product keys.
+
+Do not add cloud sync, telemetry of brief contents or remote backup without a new review.
+
+## 5. Analytics
+
+Yandex Metrica is optional and must remain consent-gated.
+
+Required code properties:
+
+- no tag initialization before `accepted`;
 - `webvisor: false`;
-- no automatic session replay/form recording;
-- decline sets `disableYaCounter<ID>` before any counter initialization;
-- withdrawal disables future activity and performs best-effort removal of accessible `_ym_*` cookies and related browser-storage identifiers;
-- user can reopen settings later.
+- official counter disable flag on decline/withdrawal;
+- best-effort cleanup of accessible first-party Metrica identifiers on withdrawal;
+- no custom event containing questionnaire text, generated brief text, names, emails or free-text field values.
 
-Production dashboard check is mandatory. Repository JavaScript cannot prove that every dashboard-side Metrica feature is disabled.
+Required account check before production:
 
-## CSP / external connections
+- Session Replay/Webvisor off;
+- form/session replay features off where applicable;
+- advanced/contact-data tracking reviewed and disabled unless separately justified;
+- access to analytics account limited appropriately.
 
-Target final CSP should contain no domains for:
+## 6. Static hosting
 
-- Groq;
-- Vercel user-data processing;
-- Google Fonts;
+Target: SourceCraft Sites / SourceCraft Free.
+
+The app must remain deployable as static HTML/CSS/JavaScript. Do not introduce:
+
+- server functions;
+- databases;
+- server-side environment secrets;
+- remote AI fallback;
+- server logging of questionnaire data.
+
+Ordinary static-host request metadata exists at infrastructure level. Record actual host/log information after the live SourceCraft deployment rather than making unsupported retention promises in code documentation.
+
+## 7. External resources
+
+Target runtime must not load:
+
+- `api.groq.com`;
+- Yandex Cloud AI Studio endpoints;
+- `fonts.googleapis.com`;
+- `fonts.gstatic.com`;
 - `mc.webvisor.org`.
 
-Metrica domains remain only if analytics is retained.
+`mc.yandex.ru` is allowed only after analytics consent.
 
-### Current migration blocker: fonts
+Until licensed local Manrope/Unbounded font files are committed, use system/local font fallbacks.
 
-The HTML still references Google Fonts temporarily so the migration branch does not ship with missing typography assets.
+## 8. CSP / browser permissions
 
-Manrope and Unbounded are licensed under SIL Open Font License 1.1 and can be self-hosted subject to the license conditions. Before final cutover:
+Legacy Vercel previews retain a restrictive CSP as a regression aid:
 
-1. obtain the official font files from the upstream licensed distribution;
-2. keep the OFL notices in the project/deployment package;
-3. serve only required WOFF2 files from the Russian static origin;
-4. use `font-display: swap`;
-5. preload only genuinely critical font files;
-6. remove `fonts.googleapis.com` / `fonts.gstatic.com` from HTML and CSP;
-7. verify by browser network trace that no Google Fonts request remains.
+- default/style/font: self;
+- Metrica explicitly allowed where needed;
+- no Webvisor or Google Fonts domains;
+- `object-src 'none'`;
+- `frame-ancestors 'none'`;
+- camera/microphone/geolocation disabled.
 
-Do not copy arbitrary font binaries from third-party mirrors.
+SourceCraft header capabilities must be checked at deployment time. Do not assume Vercel-specific headers automatically transfer to another static host.
 
-License references:
+## 9. Secrets
 
-- Manrope: https://github.com/google/fonts/tree/main/ofl/manrope
-- Unbounded: https://github.com/google/fonts/tree/main/ofl/unbounded
+The local-only production app requires no AI key, database credential or server environment secret.
 
-## Secrets
+If any future feature requires a secret, it cannot be embedded in client JavaScript. That feature must receive a new architecture/privacy review.
 
-Production target should need no stored user-facing AI API key.
+## 10. Regression checks
 
-Local development may use a short-lived IAM token through environment variables. Never commit real tokens.
+CI should fail if:
 
-`.env.example` may contain names/placeholders only.
+- local generator output becomes schema-invalid;
+- local adapter stops identifying itself as `browser-local`;
+- public HTML describes questionnaire processing as remote AI;
+- Google Fonts hosts reappear;
+- Webvisor becomes true;
+- privacy pages reintroduce Yandex Cloud AI Studio as the active questionnaire processor.
 
-## Content Security Policy
+Live pre-cutover test must additionally confirm via DevTools Network that Build sends no questionnaire request.
 
-During migration, `vercel.json` remains a legacy/preview security config. The Yandex production gateway/static response must reproduce equivalent security headers:
+## 11. Incident boundary
 
-- `X-Content-Type-Options: nosniff`;
-- `Referrer-Policy: strict-origin-when-cross-origin`;
-- restrictive `Permissions-Policy`;
-- CSP with `default-src 'self'` and narrow Metrica allowances;
-- frame/object restrictions.
+Because Brand Brief Studio intentionally has no server copy of questionnaires, a compromise of application storage should not expose a central database of user briefs. This does not eliminate risks from:
 
-After self-hosting fonts, remove Google origins from the policy.
+- malicious client-side code supply-chain changes;
+- compromised static hosting/source repository;
+- analytics misconfiguration;
+- data left in a shared browser/device;
+- exported files saved by the user.
 
-## Data minimization rules for future features
-
-Before adding a feature that needs any of the following, perform a new data-flow review:
-
-- accounts/login;
-- cloud brief history;
-- collaboration/invitations;
-- email export;
-- CRM integrations;
-- user-uploaded files;
-- external web research/search;
-- foreign AI models/fallbacks;
-- error/session replay SDKs;
-- payment systems;
-- user profiling/personalization.
-
-Do not reuse the current privacy wording for new flows automatically.
-
-## Incident engineering checklist
-
-- retain enough non-content diagnostic metadata to correlate a failing request without logging questionnaire text;
-- document who has Yandex Cloud/GitHub access;
-- revoke compromised credentials/service-account permissions promptly;
-- preserve incident evidence before log rotation where legally/operationally required;
-- follow the operator incident process in `LEGAL-OPERATOR-CHECKLIST.md`.
-
-## Pre-cutover privacy smoke tests
-
-1. Fresh browser: load `/` and `/ru/`; Metrica requests must be absent before consent.
-2. Decline analytics; reload; Metrica must remain absent.
-3. Accept analytics; confirm Metrica loads; confirm no Webvisor endpoint/session replay.
-4. Withdraw analytics; confirm future Metrica requests stop after reload.
-5. Type questionnaire but do not generate; confirm no questionnaire POST occurs.
-6. Generate with test non-personal content; confirm POST goes to Russian production origin only.
-7. Confirm no request to Groq or Vercel generation API.
-8. Confirm AI response passes strict structure and evidence validation.
-9. Confirm application logs contain no input/output text or raw IP.
-10. Delete local data; confirm draft + both locale histories are removed.
-11. Confirm Google Fonts is absent after the font migration step.
-12. Re-run CSP/security-header checks on final domain.
+Treat unexpected remote transmission of questionnaire content as a privacy/security incident and stop the affected deployment while investigating.
