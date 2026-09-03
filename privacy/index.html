@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="How Brand Brief Studio handles browser-local questionnaire data, static hosting and optional analytics." />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Privacy — Brand Brief Studio</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../privacy.css" />
+</head>
+<body class="privacy-page" data-lang="en">
+  <main class="privacy-shell">
+    <a class="privacy-back" href="../">← Brand Brief Studio</a>
+    <header class="privacy-hero">
+      <p class="eyebrow">Anostosio° / Product Lab</p>
+      <h1>Privacy in Brand Brief Studio</h1>
+      <p class="lead">Brand Brief Studio is a static, browser-local product. Questionnaire content is processed on your device and is not sent to a Brand Brief Studio backend or an external AI provider.</p>
+      <div class="privacy-status"><strong>Live privacy verification completed 3 September 2026.</strong> On the SourceCraft deployment, building a brief produced no questionnaire/API request. After analytics was declined, the Fetch/XHR network list remained empty during brief generation.</div>
+    </header>
+
+    <article class="privacy-content">
+      <section>
+        <h2>1. Operator and contact</h2>
+        <p>The operator of Brand Brief Studio is an <strong>individual</strong> who owns and operates the Anostosio° / Product Lab project.</p>
+        <p>Personal-data and privacy requests: <a href="mailto:Anostosio@yandex.ru">Anostosio@yandex.ru</a>.</p>
+        <p>No IP/INN/OGRN, self-employed status or other registration details are stated because the operator has not represented herself as an individual entrepreneur or self-employed person for this product.</p>
+      </section>
+
+      <section>
+        <h2>2. Questionnaire and generated brief</h2>
+        <p>The questionnaire is processed by JavaScript running in your browser. Pressing <strong>Build working brief</strong> does not upload questionnaire fields to a Brand Brief Studio server and does not call Groq, YandexGPT or another remote model.</p>
+        <p>The result is produced by a deterministic evidence-aware rules engine bundled with the site. It uses only the fields you entered, marks hypotheses and validation gaps, and does not claim to perform market research.</p>
+      </section>
+
+      <section>
+        <h2>3. Local browser storage</h2>
+        <p>The questionnaire draft and recent briefs are stored through the browser Local Storage API. Up to eight recent briefs are retained per interface language. A history entry can contain questionnaire input, generated output, evidence metadata, alternative directions and local timestamps.</p>
+        <p>There is no Brand Brief Studio account and no application database synchronizing these records. They remain on the current device/browser until you delete them, clear site data or the browser removes them.</p>
+        <p>The <strong>Delete local data</strong> action removes Brand Brief Studio draft/history keys from this browser. JSON/PDF files exported elsewhere are outside the site's control.</p>
+      </section>
+
+      <section>
+        <h2>4. Static hosting and technical request data</h2>
+        <p>The public deployment is the SourceCraft Sites repository <strong>Anostosio Product Lab / ai-brand-brief</strong>, published at <code>https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/</code>.</p>
+        <p>Delivering any website necessarily exposes ordinary request metadata such as IP address, request headers and timestamps to the hosting infrastructure. Brand Brief Studio has no application backend that receives questionnaire bodies and does not use visitor IP addresses for product-level rate limiting.</p>
+        <p>The site does not promise a specific infrastructure-log retention period unless that behaviour is confirmed by the hosting provider's current terms/settings.</p>
+      </section>
+
+      <section>
+        <h2>5. Yandex Metrica</h2>
+        <p>Yandex Metrica is optional. Its tag is loaded only after you choose <strong>Allow analytics</strong>. If you decline, the application sets the counter-disable flag and does not initialize the counter.</p>
+        <p><strong>Session Replay / Webvisor, form analysis and unnecessary advanced tracking are disabled in the current site/dashboard configuration.</strong> You can reopen Analytics settings and withdraw your choice. On withdrawal the application disables further counter activity and makes a best-effort deletion of accessible first-party Metrica cookies and browser-storage identifiers.</p>
+        <p>Withdrawal affects future analytics processing; it cannot retroactively remove events already sent. The operator should keep the Metrica dashboard configuration aligned with this notice.</p>
+      </section>
+
+      <section>
+        <h2>6. Cookies and browser storage</h2>
+        <div class="privacy-table-wrap"><table>
+          <thead><tr><th>Item</th><th>Purpose</th><th>Where</th><th>Retention</th></tr></thead>
+          <tbody>
+            <tr><td><code>brand-brief-studio:draft:shared</code></td><td>Questionnaire draft</td><td>Local Storage</td><td>Until deletion/browser cleanup</td></tr>
+            <tr><td><code>brand-brief-studio:history:…</code></td><td>Up to 8 recent briefs per language</td><td>Local Storage</td><td>Until deletion/browser cleanup</td></tr>
+            <tr><td><code>brandBrief.analyticsConsent.v1</code></td><td>Remember analytics choice</td><td>Local Storage</td><td>Until site data is cleared or preference changes</td></tr>
+            <tr><td><code>_ym_*</code> and related Yandex identifiers</td><td>Optional analytics after consent</td><td>Cookies/browser storage</td><td>According to Yandex Metrica settings; best-effort cleanup on withdrawal</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section>
+        <h2>7. External services</h2>
+        <p>The questionnaire flow has no remote AI provider. Google Fonts is absent from the runtime; typography uses local/system assets until licensed font files are self-hosted. The portfolio link opens only after you choose it. Yandex Metrica is the only optional analytics dependency and is consent-gated.</p>
+      </section>
+
+      <section>
+        <h2>8. Your choices</h2>
+        <p>You can use the brief builder without enabling analytics. You can remove locally stored product data through the interface and clear all site data in your browser at any time.</p>
+        <p>For privacy or personal-data questions relating to hosting or optional analytics, contact <a href="mailto:Anostosio@yandex.ru">Anostosio@yandex.ru</a>.</p>
+      </section>
+
+      <section>
+        <h2>9. Current production architecture</h2>
+        <p>This notice describes the <strong>zero-cost browser-local SourceCraft deployment</strong>. Live verification confirmed that brief generation itself does not transmit questionnaire/free-text content. Optional analytics remains separate and consent-gated.</p>
+      </section>
+    </article>
+
+    <footer class="privacy-footer">Brand Brief Studio · Anostosio° / Product Lab · Privacy review: 3 September 2026.</footer>
+  </main>
+</body>
+</html>

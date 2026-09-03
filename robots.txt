@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /api/
 
-Sitemap: https://ai-brand-brief.vercel.app/sitemap.xml
+Sitemap: https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/sitemap.xml

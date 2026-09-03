@@ -2,21 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://ai-brand-brief.vercel.app/</loc>
+    <loc>https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://ai-brand-brief.vercel.app/" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://ai-brand-brief.vercel.app/ru/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ai-brand-brief.vercel.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/ru/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/" />
   </url>
   <url>
-    <loc>https://ai-brand-brief.vercel.app/ru/</loc>
+    <loc>https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/ru/</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://ai-brand-brief.vercel.app/" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://ai-brand-brief.vercel.app/ru/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ai-brand-brief.vercel.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/ru/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/" />
   </url>
 </urlset>

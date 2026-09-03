@@ -3,25 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Соберите структурированный редактируемый бренд-бриф из реальных вводных, не выдавая предположения ИИ за исследование." />
+  <meta name="description" content="Соберите структурированный редактируемый бренд-бриф локально в браузере, отделяя факты, гипотезы и зоны для проверки." />
   <meta name="theme-color" content="#f4f0eb" />
   <meta property="og:title" content="Brand Brief Studio — Anostosio°" />
-  <meta property="og:description" content="ИИ-инструмент для доказательного и практичного бренд-брифа." />
-  <meta property="og:image" content="https://ai-brand-brief.vercel.app/assets/ai-brand-brief-preview.webp" />
+  <meta property="og:description" content="Приватный доказательный инструмент для создания практичного бренд-брифа прямо в браузере." />
+  <meta property="og:image" content="https://brief.anostosio.ru/assets/ai-brand-brief-preview.webp" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://ai-brand-brief.vercel.app/ru/" />
+  <meta property="og:url" content="https://brief.anostosio.ru/ru/" />
   <meta property="og:locale" content="ru_RU" />
   <meta name="twitter:card" content="summary_large_image" />
   <title>Brand Brief Studio — Anostosio°</title>
-  <link rel="canonical" href="https://ai-brand-brief.vercel.app/ru/" />
-  <link rel="alternate" hreflang="en" href="https://ai-brand-brief.vercel.app/" />
-  <link rel="alternate" hreflang="ru" href="https://ai-brand-brief.vercel.app/ru/" />
-  <link rel="alternate" hreflang="x-default" href="https://ai-brand-brief.vercel.app/" />
+  <link rel="canonical" href="https://brief.anostosio.ru/ru/" />
+  <link rel="alternate" hreflang="en" href="https://brief.anostosio.ru/" />
+  <link rel="alternate" hreflang="ru" href="https://brief.anostosio.ru/ru/" />
+  <link rel="alternate" hreflang="x-default" href="https://brief.anostosio.ru/" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/site.webmanifest" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../style.css" />
 </head>
 <body data-lang="ru">
@@ -30,7 +27,7 @@
     <a class="brand" href="/ru/">Anostosio° / Product Lab</a>
     <div class="header-actions">
       <nav class="language-switch" aria-label="Язык"><a href="/">EN</a><span class="is-active">RU</span></nav>
-      <span class="pill">Версия 1.2 · доверие и качество</span>
+      <span class="pill">Версия 1.3 · локально и приватно</span>
     </div>
   </header>
 
@@ -39,11 +36,11 @@
       <div class="hero-copy">
         <p class="eyebrow">Серьёзная отправная точка для работы над брендом</p>
         <h1 id="pageTitle">Превратите вводные о проекте в бриф, с которым можно работать.</h1>
-        <p class="lead">Зафиксируйте бизнес-задачу, аудиторию, доказательства и ограничения. Brand Brief Studio соберёт редактируемый рабочий документ и отдельно покажет предположения, которые ещё нужно проверить.</p>
+        <p class="lead">Зафиксируйте бизнес-задачу, аудиторию, доказательства и ограничения. Brand Brief Studio соберёт редактируемый рабочий документ прямо в браузере и отдельно покажет предположения, которые ещё нужно проверить.</p>
       </div>
       <div class="hero-note" aria-label="Как это работает">
         <span>01</span><p>Зафиксируйте факты и неизвестное</p>
-        <span>02</span><p>Получите структурированный черновик</p>
+        <span>02</span><p>Получите локальный структурированный черновик</p>
         <span>03</span><p>Проверьте, исправьте и экспортируйте</p>
       </div>
     </section>
@@ -97,7 +94,7 @@
 
         <div id="formError" class="inline-error" role="alert" hidden></div>
         <button class="primary-button" type="submit"><span>Собрать рабочий бриф</span><span aria-hidden="true">↗</span></button>
-        <p class="form-hint">Черновик и последние брифы хранятся только в этом браузере. Ответы обрабатываются внешним ИИ-сервисом — не указывайте конфиденциальные данные клиентов. Результат ИИ не считается подтверждённым исследованием.</p>
+        <p class="form-hint">Анкета обрабатывается локально в этом браузере и не отправляется на сервер Brand Brief Studio или внешнему ИИ-провайдеру. Черновики и недавние брифы тоже остаются в браузере. Яндекс Метрика загружается только после отдельного согласия на аналитику. Не вводите пароли, ключи доступа и сведения, которые не хотите хранить на этом устройстве. <a href="/ru/privacy/">Подробнее о данных</a>.</p>
       </form>
 
       <section class="panel result-panel" aria-live="polite" aria-busy="false">
@@ -108,7 +105,7 @@
 
         <div id="generationNotice" class="generation-notice" role="status" hidden>
           <strong id="noticeTitle"></strong><p id="noticeText"></p>
-          <div class="notice-actions"><button type="button" class="text-button" id="retryButton">Повторить с ИИ</button><button type="button" class="text-button" id="localDraftButton">Собрать локальный черновик</button></div>
+          <div class="notice-actions"><button type="button" class="text-button" id="retryButton">Попробовать снова</button><button type="button" class="text-button" id="localDraftButton">Собрать резервный черновик</button></div>
         </div>
 
         <div id="emptyState" class="empty-state"><div class="brief-mark" aria-hidden="true"><span></span><span></span><span></span></div><h3>Начните с фактов</h3><p>Заполните обязательные поля. Дополнительные вводные сделают результат точнее и покажут, что ещё требует проверки.</p></div>
@@ -144,12 +141,13 @@
     </section>
   </main>
 
-  <footer><p>Концепция продукта, UX/UI и методология бренда — Anostosio°</p><div class="footer-actions"><button type="button" class="privacy-button" id="analyticsSettings">Настройки аналитики</button><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Портфолио ↗</a></div></footer>
+  <footer><p>Концепция продукта, UX/UI и методология бренда — Anostosio°</p><div class="footer-actions"><a class="privacy-button" href="/ru/privacy/">Конфиденциальность</a><button type="button" class="privacy-button" id="localDataDelete">Удалить локальные данные</button><button type="button" class="privacy-button" id="analyticsSettings">Настройки аналитики</button><a href="https://anostosio.ru/" target="_blank" rel="noreferrer">Портфолио ↗</a></div></footer>
   <aside class="consent-banner" id="analyticsConsent" aria-labelledby="analyticsConsentTitle" hidden>
-    <div><strong id="analyticsConsentTitle">Помочь улучшить Brand Brief Studio?</strong><p>С вашего разрешения Яндекс Метрика измерит посещения и использование интерфейса, включая Вебвизор. Не вводите конфиденциальные данные клиентов.</p></div>
+    <div><strong id="analyticsConsentTitle">Помочь улучшить Brand Brief Studio?</strong><p>С вашего разрешения Яндекс Метрика измерит посещения и базовое использование интерфейса. Вебвизор отключён. Вы сможете изменить выбор позже в настройках аналитики.</p></div>
     <div class="consent-actions"><button type="button" class="consent-secondary" id="analyticsDecline">Не сейчас</button><button type="button" class="consent-primary" id="analyticsAccept">Разрешить аналитику</button></div>
   </aside>
-  <script type="module" src="../app.js"></script>
+  <script type="module" src="../bootstrap.js"></script>
+  <script type="module" src="../privacy-controls.js"></script>
   <script type="module" src="../analytics.js"></script>
 </body>
 </html>

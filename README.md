@@ -1,181 +1,154 @@
 # Brand Brief Studio
 
-A bilingual, AI-assisted workspace for turning real project context into an editable brand brief—without presenting model assumptions as market research.
+A bilingual, evidence-aware browser workspace for turning real project context into an editable working brand brief without presenting assumptions as research.
 
-![Brand Brief Studio interface](assets/ai-brand-brief-preview.webp)
+**Brand:** Anostosio° / Product Lab  
+**Target cost:** **0 ₽ / month**  
+**Target hosting:** SourceCraft Sites / SourceCraft Free  
+**Status of this branch:** local-only privacy migration — **not yet production cutover**
 
-![Evidence statuses and alternative strategic directions in v1.2](assets/ai-brand-brief-v12-result.jpg)
-
-**Live product:** https://ai-brand-brief.vercel.app/
-
-**Russian version:** https://ai-brand-brief.vercel.app/ru/
-
-## Portfolio snapshot
-
-**Role:** product concept · brand methodology · UX/UI · front-end · serverless integration · testing · deployment
-
-**Status:** v1.2 · Trust & Quality
-
-**Format:** EN / RU · responsive web application
-
-**Core idea:** help a designer or client team move from fragmented inputs to a reviewable working document
-
-## The problem
-
-Brand projects often start with scattered notes, visual preferences and unverified assumptions. A short AI prompt can make that material sound polished, but it can also hide what is missing, invent confidence and produce a document that is difficult to use in real work.
-
-## The solution
-
-Brand Brief Studio asks for the context that a serious first brief needs:
-
-- business offer and project challenge
-- primary goal and market
-- audience, needs and barriers
-- competitors and alternatives
-- defensible difference and proof
-- personality, deliverables and constraints
-
-It turns those inputs into 13 editable sections, including positioning, value proposition, messaging, visual direction, risks and ordered next steps. Every section also carries a visible evidence status—grounded, mixed, hypothesis or needs validation—plus the questionnaire fields that support it.
-
-Before generation, a local readiness diagnostic scores five dimensions: foundation, audience tension, competitive difference, evidence and scope. This improves the input without spending an AI request.
+> The existing public Vercel/Groq deployment remains legacy until a free static production site is published and verified. Do not describe the legacy production URL with the new local-only privacy wording before cutover.
 
 ## Product flow
 
-```mermaid
-flowchart TD
-  A[Project-type questionnaire] --> B[Local readiness diagnostic]
-  B --> C[Validated server request]
-  C --> D[Groq strict structured output]
-  D --> E[Brief + evidence map + 2 routes]
-  E --> F[Edit · history · import · export]
-  C -. unavailable .-> G[Labelled local fallback]
-```
+1. Complete a structured brand questionnaire.
+2. Run a local readiness diagnostic.
+3. Build a structured evidence-aware draft **inside the browser**.
+4. Review evidence status and two alternative strategic routes.
+5. Edit, reopen recent work, copy, export JSON or save PDF.
 
-If AI generation is unavailable, the interface preserves the answers and offers two explicit choices: retry or create a clearly labelled local structured draft. It never disguises a template as a successful AI response.
-
-## Key product decisions
-
-### Evidence-aware output
-
-The prompt forbids invented research, channels, deliverables, sample sizes, market claims and proof. The data contract requires an evidence status, source-field list and uncertainty note for every section. The output also includes a dedicated “Risks and unknowns” section.
+The evidence system distinguishes:
 
 | Status | Meaning |
 | --- | --- |
 | Grounded | Directly supported by supplied fields |
-| Mixed | Supplied facts plus professional interpretation |
-| Hypothesis | A strategic or creative proposal to test |
-| Needs validation | Evidence is missing or contradictory |
+| Mixed | Supplied facts plus structured interpretation |
+| Hypothesis | A proposal that needs testing |
+| Needs validation | Evidence is missing or uncertain |
 
-### Project-aware generation
+## Zero-cost local-only architecture
 
-The questionnaire supports new brands, rebrands, campaigns, personal brands, digital products and packaging. The selected type changes the guidance and becomes part of the generation context.
+```text
+static site
+   ↓
+user browser
+   ├─ questionnaire
+   ├─ readiness scoring
+   ├─ evidence-aware rules engine
+   ├─ brief + trust map + 2 routes
+   ├─ localStorage history
+   └─ JSON / PDF export
 
-### Alternative routes
+optional Yandex Metrica
+   └─ loads only after analytics opt-in
+```
 
-Each generation includes two deliberately different strategic routes with positioning, tone, visual principle, advantage and risk. They are clearly presented as proposals rather than research conclusions.
+There is **no application backend, database or remote AI provider** in the target questionnaire flow.
 
-### Schema-constrained generation
+The UI keeps the legacy internal route contract `/api/generate` only as an implementation detail: `local-generation-adapter.js` intercepts it in the browser and returns a local `Response`. No HTTP request is sent for generation.
 
-The server uses Structured Outputs with a strict JSON Schema, then validates the response again before returning it to the browser.
+## Local browser data
 
-### Honest failure states
+- questionnaire draft is stored in Local Storage;
+- up to eight recent briefs per language are stored locally;
+- no user account is required;
+- no Brand Brief Studio database stores questionnaires or generated briefs;
+- **Delete local data** removes product draft/history keys from the current browser.
 
-API errors, timeouts and unavailable credentials produce a recoverable interface state. The user’s local draft remains intact and the fallback is always labelled as non-AI.
+## Analytics
 
-### Local-first continuity
+Yandex Metrica remains optional:
 
-Questionnaire drafts and the eight most recent briefs are stored in the current browser. No account is required, and recent work can be reopened and edited.
+- tag loads only after explicit opt-in;
+- **Webvisor / Session Replay is disabled**;
+- decline and later withdrawal are supported;
+- withdrawal disables future counter activity and performs best-effort cleanup of accessible first-party Metrica browser identifiers.
 
-Versioned JSON export and import make projects portable without introducing accounts or a database.
+Dashboard-side Metrica settings still require a production review.
 
-### Client-ready exports
+## Hosting
 
-The product supports formatted clipboard output, a versioned machine-readable JSON format and a print-optimized A4 document with a cover, readiness score, evidence labels and alternative directions.
+The target is **SourceCraft Sites** on **SourceCraft Free**. Official SourceCraft documentation describes Sites as free static hosting and the Free plan as not billed.
 
-## Reliability and safety
+SourceCraft Sites requires a public repository in a public SourceCraft organization and provides HTTPS without a server runtime.
 
-- API credentials remain server-side
-- required-field and length validation in browser and server
-- request body size limit
-- request timeout, per-IP guard and per-instance global quota protection
-- strict schema-constrained model output
-- output validation before rendering
-- one automatic retry if a model response fails local quality validation
-- request ID, duration and outcome logging without questionnaire content
-- explicit warning against submitting confidential client information
-- no HTML injection from generated content
-- security headers and restrictive Content Security Policy
-- reduced-motion and keyboard-focus support
-- automated core tests and GitHub Actions checks
+See [`deploy/sourcecraft/README.md`](deploy/sourcecraft/README.md).
 
-The in-memory guards are intentionally lightweight for this portfolio deployment. A production multi-instance service should use a shared rate-limit store or the hosting provider’s firewall.
+A custom `brief.anostosio.ru` hostname is **not assumed** to be free or supported by SourceCraft Sites. Until an actually supported zero-cost mapping is confirmed, the production address may be the SourceCraft-provided `sourcecraft.site` URL. Canonical/sitemap values must be finalized after the actual production URL exists.
 
-Questionnaire answers submitted for AI generation are processed by Groq. The public demo should be used with fictional or non-confidential project information.
+## External runtime dependencies
 
-## Stack
+Target questionnaire runtime:
 
-- semantic HTML5
-- responsive CSS and print styles
-- vanilla JavaScript ES modules
-- Local Storage, Clipboard and Blob APIs
-- Vercel serverless function
-- Groq Chat Completions API with Structured Outputs
-- Node.js built-in test runner
-- GitHub Actions
-- Vercel
+- remote AI: **none**;
+- Brand Brief Studio API: **none**;
+- Google Fonts: **removed**;
+- Yandex Metrica: optional, consent-gated;
+- portfolio link: only after user click.
 
-## Search and brand surface
+Until licensed local Manrope/Unbounded assets are committed, the site intentionally falls back to locally available/system fonts rather than making a Google Fonts request. The font families are OFL-licensed; see `assets/fonts/README.md` for provenance notes.
 
-The deployment includes a custom `B°` favicon, web app manifest, canonical URLs, EN/RU hreflang links, Open Graph metadata, `robots.txt` and a bilingual XML sitemap. The site is ready for ownership verification in Google Search Console and for a Yandex Metrica tag once account-specific identifiers are issued.
+## Key files
 
-Google Search Console ownership is verified through the root HTML file. Yandex Metrica counter `112263821` loads only after explicit visitor consent; the bilingual banner also provides a persistent analytics-settings control.
+```text
+lib/brief-core.js                  validation, readiness, evidence-aware local generator
+local-generation-adapter.js       browser-only generation response adapter
+bootstrap.js                       installs local adapter before app startup
+app.js                             UI workflow, editing, history and export
+analytics.js                       consent-gated Metrica, Webvisor disabled
+privacy-controls.js                local draft/history deletion
+index.html                         English interface
+ru/index.html                      Russian interface
+privacy/index.html                 English migration-draft privacy page
+ru/privacy/index.html              Russian migration-draft privacy page
+PRIVACY-DATA-MAP.md                target data-flow inventory
+LEGAL-OPERATOR-CHECKLIST.md        operator/Roskomnadzor tasks outside code
+SECURITY-PRIVACY-NOTES.md          engineering privacy invariants
+.sourcecraft/sites.yaml            free static hosting configuration
+deploy/sourcecraft/README.md       zero-cost deployment runbook
+test/                              local generation/privacy regression tests
+```
 
-## Quality checks
-
-The dependency-free test suite covers sanitization, required inputs, readiness scoring, local fallback generation, evidence metadata, alternatives, provider parsing, upstream error classification and the bilingual HTML interaction contract.
-
-## Run locally
-
-The static interface works with any local web server. AI generation requires a Vercel-compatible serverless environment and the variables from `.env.example`.
+## Development
 
 ```bash
-npm install
+npm ci
 npm run check
 npm test
 ```
 
-Environment variables:
+Node.js 22+ is used only for repository quality checks. The production application is static HTML/CSS/JavaScript and does not require Node.js on the server.
 
-```text
-GROQ_API_KEY=your_server_side_key_here
-GROQ_MODEL=openai/gpt-oss-20b
-```
+## Reliability / privacy invariants
 
-## Project structure
+- questionnaire generation must not perform an HTTP request;
+- no Groq/YandexGPT/other remote model in the production questionnaire path;
+- generated output must validate against the same brief/trust/alternatives contract;
+- inputs are sanitized and field-length limited;
+- assumptions remain marked as hypotheses or needs-validation;
+- no HTML injection from generated text;
+- local history is bounded to eight entries per language;
+- Webvisor remains off;
+- analytics remains opt-in;
+- privacy regression tests must fail if remote AI, Google Fonts or Webvisor is reintroduced without review.
 
-```text
-api/generate.js          server-side generation, retry, limits and safe logging
-lib/brief-core.js        shared validation, readiness, trust and fallback logic
-test/                    dependency-free core tests
-.github/workflows/       automated quality checks
-index.html               English interface
-ru/index.html            Russian interface
-app.js                   browser state and interaction layer
-style.css                responsive and print design system
-vercel.json              deployment security headers
-```
+## Production gates
 
-## What I learned
+Do not retire the legacy production site until all of these are complete:
 
-This project connects my branding practice with product-building. The central product decision was to make uncertainty visible instead of polishing it away. A reliable AI product needs good inputs, evidence-aware output, predictable contracts, recoverable errors and a useful workflow before and after generation.
-
-## Related work
-
-**Job Search CRM:** https://job-search-crm-psi.vercel.app/  
-**Portfolio:** https://anostosio.ru/
+- [ ] SourceCraft Free public organization/repository created;
+- [ ] SourceCraft Sites deployment live over HTTPS;
+- [ ] EN/RU/Privacy/export flows tested;
+- [ ] DevTools Network proves questionnaire generation creates no network request containing questionnaire data;
+- [ ] Metrica is silent before consent and Webvisor remains absent;
+- [ ] actual static-host URL and infrastructure notes recorded;
+- [ ] canonical/sitemap/robots updated to the real production URL;
+- [ ] real personal-data operator/contact supplied for final public notice;
+- [ ] applicable Roskomnadzor obligations reviewed/completed;
+- [ ] final privacy wording reviewed against the live configuration;
+- [ ] only then redirect/retire the old Vercel/Groq deployment.
 
 ---
 
-Created by **Anostosio°**
-
-Graphic Design · Branding · Advertising · AI-assisted Product Building
+Created by **Anostosio° / Product Lab**  
+Graphic Design · Branding · Advertising · Product Building

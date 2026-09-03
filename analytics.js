@@ -1,5 +1,6 @@
 const METRICA_ID = 112263821;
 const CONSENT_KEY = 'brandBrief.analyticsConsent.v1';
+const DISABLE_FLAG = `disableYaCounter${METRICA_ID}`;
 
 const banner = document.querySelector('#analyticsConsent');
 const acceptButton = document.querySelector('#analyticsAccept');
@@ -14,8 +15,50 @@ function saveConsent(value) {
   try { localStorage.setItem(CONSENT_KEY, value); } catch { /* Consent still applies for this page. */ }
 }
 
+function expireCookie(name) {
+  const encoded = encodeURIComponent(name);
+  const hostParts = location.hostname.split('.');
+  const domains = ['', location.hostname, hostParts.length > 2 ? `.${hostParts.slice(-2).join('.')}` : ''].filter(Boolean);
+  const paths = ['/', location.pathname || '/'];
+
+  for (const domain of domains) {
+    for (const path of paths) {
+      document.cookie = `${encoded}=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=${path}; Domain=${domain}; SameSite=Lax`;
+    }
+  }
+  document.cookie = `${encoded}=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Lax`;
+}
+
+function clearMetricaClientData() {
+  try {
+    for (const item of document.cookie.split(';')) {
+      const name = decodeURIComponent(item.split('=')[0]?.trim() || '');
+      if (/^_ym_/i.test(name)) expireCookie(name);
+    }
+  } catch { /* Best effort: some cookie modes do not expose identifiers to JavaScript. */ }
+
+  for (const storage of [localStorage, sessionStorage]) {
+    try {
+      for (let index = storage.length - 1; index >= 0; index -= 1) {
+        const key = storage.key(index);
+        if (key && /^_?ym/i.test(key) && key !== CONSENT_KEY) storage.removeItem(key);
+      }
+    } catch { /* Storage may be unavailable in privacy modes. */ }
+  }
+}
+
+function disableMetrica() {
+  window[DISABLE_FLAG] = true;
+  clearMetricaClientData();
+}
+
+function enableMetrica() {
+  window[DISABLE_FLAG] = false;
+}
+
 function loadMetrica() {
   if (window.ym) return;
+  enableMetrica();
 
   (function initQueue(m, e, t, r, i, k, a) {
     m[i] = m[i] || function queueCall() { (m[i].a = m[i].a || []).push(arguments); };
@@ -32,9 +75,8 @@ function loadMetrica() {
 
   window.ym(METRICA_ID, 'init', {
     ssr: true,
-    webvisor: true,
+    webvisor: false,
     clickmap: true,
-    ecommerce: 'dataLayer',
     referrer: document.referrer,
     url: location.href,
     accurateTrackBounce: true,
@@ -61,7 +103,9 @@ acceptButton?.addEventListener('click', () => {
 declineButton?.addEventListener('click', () => {
   const wasAccepted = readConsent() === 'accepted';
   saveConsent('declined');
+  disableMetrica();
   hideBanner();
+  // Reload only after revoking an active counter so no queued page activity is sent afterwards.
   if (wasAccepted) location.reload();
 });
 
@@ -69,4 +113,7 @@ settingsButton?.addEventListener('click', showBanner);
 
 const consent = readConsent();
 if (consent === 'accepted') loadMetrica();
-else if (consent !== 'declined') showBanner();
+else {
+  disableMetrica();
+  if (consent !== 'declined') showBanner();
+}
