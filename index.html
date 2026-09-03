@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Create a structured, editable brand brief from real project context without treating AI assumptions as research." />
+  <meta name="description" content="Create a structured, editable brand brief locally in your browser while keeping facts, assumptions and validation gaps visible." />
   <meta name="theme-color" content="#f4f0eb" />
   <meta property="og:title" content="Brand Brief Studio — Anostosio°" />
-  <meta property="og:description" content="An evidence-aware AI workspace for creating practical brand briefs." />
+  <meta property="og:description" content="A privacy-first, evidence-aware workspace for creating practical brand briefs locally in the browser." />
   <meta property="og:image" content="https://brief.anostosio.ru/assets/ai-brand-brief-preview.webp" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://brief.anostosio.ru/" />
@@ -30,7 +30,7 @@
     <a class="brand" href="/">Anostosio° / Product Lab</a>
     <div class="header-actions">
       <nav class="language-switch" aria-label="Language"><span class="is-active">EN</span><a href="/ru/">RU</a></nav>
-      <span class="pill">Version 1.2 · trust &amp; quality</span>
+      <span class="pill">Version 1.3 · local &amp; private</span>
     </div>
   </header>
 
@@ -39,11 +39,11 @@
       <div class="hero-copy">
         <p class="eyebrow">A serious starting point for brand work</p>
         <h1 id="pageTitle">Turn project context into a brief you can actually use.</h1>
-        <p class="lead">Capture the business problem, audience, evidence and constraints. Brand Brief Studio turns the inputs into an editable working document while keeping assumptions visible.</p>
+        <p class="lead">Capture the business problem, audience, evidence and constraints. Brand Brief Studio builds an editable working document locally in your browser while keeping assumptions visible.</p>
       </div>
       <div class="hero-note" aria-label="How it works">
         <span>01</span><p>Capture facts and unknowns</p>
-        <span>02</span><p>Generate a structured draft</p>
+        <span>02</span><p>Build a structured local draft</p>
         <span>03</span><p>Review, edit and export</p>
       </div>
     </section>
@@ -96,8 +96,8 @@
         </fieldset>
 
         <div id="formError" class="inline-error" role="alert" hidden></div>
-        <button class="primary-button" type="submit"><span>Generate working brief</span><span aria-hidden="true">↗</span></button>
-        <p class="form-hint">Drafts and recent briefs stay in this browser. When you generate with AI, the questionnaire is sent to the Brand Brief Studio server and processed in the Russian Yandex Cloud AI Studio environment. Do not enter personal data of third parties, special-category personal data, credentials or confidential client information. <a href="/privacy/">Privacy details</a>.</p>
+        <button class="primary-button" type="submit"><span>Build working brief</span><span aria-hidden="true">↗</span></button>
+        <p class="form-hint">The questionnaire is processed locally in this browser and is not sent to a Brand Brief Studio server or an AI provider. Drafts and recent briefs also stay in this browser. Optional Yandex Metrica loads only after analytics consent. Avoid entering passwords, access keys or information you do not want stored on this device. <a href="/privacy/">Privacy details</a>.</p>
       </form>
 
       <section class="panel result-panel" aria-live="polite" aria-busy="false">
@@ -108,7 +108,7 @@
 
         <div id="generationNotice" class="generation-notice" role="status" hidden>
           <strong id="noticeTitle"></strong><p id="noticeText"></p>
-          <div class="notice-actions"><button type="button" class="text-button" id="retryButton">Retry AI</button><button type="button" class="text-button" id="localDraftButton">Create local draft</button></div>
+          <div class="notice-actions"><button type="button" class="text-button" id="retryButton">Try again</button><button type="button" class="text-button" id="localDraftButton">Build fallback draft</button></div>
         </div>
 
         <div id="emptyState" class="empty-state"><div class="brief-mark" aria-hidden="true"><span></span><span></span><span></span></div><h3>Start with the facts</h3><p>Complete the required fields. Optional context makes the result more specific and exposes what still needs validation.</p></div>
@@ -149,7 +149,7 @@
     <div><strong id="analyticsConsentTitle">Help improve Brand Brief Studio?</strong><p>With your permission, Yandex Metrica measures visits and basic interface usage. Session Replay is disabled. You can change this choice later in Analytics settings.</p></div>
     <div class="consent-actions"><button type="button" class="consent-secondary" id="analyticsDecline">Not now</button><button type="button" class="consent-primary" id="analyticsAccept">Allow analytics</button></div>
   </aside>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="bootstrap.js"></script>
   <script type="module" src="privacy-controls.js"></script>
   <script type="module" src="analytics.js"></script>
 </body>
