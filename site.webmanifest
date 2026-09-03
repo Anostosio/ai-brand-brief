@@ -1,0 +1,19 @@
+{
+  "name": "Brand Brief Studio — Anostosio°",
+  "short_name": "Brief Studio",
+  "description": "An evidence-aware AI workspace for creating practical brand briefs.",
+  "lang": "en",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f0eb",
+  "theme_color": "#831c18",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
