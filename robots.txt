@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://brief.anostosio.ru/sitemap.xml
+Sitemap: https://anostosio-product-lab.sourcecraft.site/ai-brand-brief/sitemap.xml
