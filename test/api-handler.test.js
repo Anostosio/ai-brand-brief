@@ -31,7 +31,7 @@ test('generation retries invalid Yandex output and preserves privacy controls', 
     return {
       ok: true,
       status: 200,
-      json: async () => ({ result: { alternatives: [{ message: { text: content } }] } }),
+      json: async () => ({ alternatives: [{ status: 'ALTERNATIVE_STATUS_FINAL', message: { text: content } }] }),
       headers: new Headers()
     };
   };
@@ -56,7 +56,7 @@ test('generation retries invalid Yandex output and preserves privacy controls', 
     assert.equal(calls.length, 2);
 
     const first = calls[0];
-    assert.equal(first.url, 'https://ai.api.cloud.yandex.net/foundationModels/v1/completion');
+    assert.equal(first.url, 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion');
     assert.equal(first.options.headers.Authorization, 'Bearer test-token');
     assert.equal(first.options.headers['x-folder-id'], 'test-folder');
     assert.equal(first.options.headers['x-data-logging-enabled'], 'false');
